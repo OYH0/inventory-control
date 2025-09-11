@@ -1,0 +1,258 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+
+@layer base {
+  :root {
+    --background: 44 21% 97%;
+    --foreground: 25 25% 15%;
+
+    --card: 44 21% 97%;
+    --card-foreground: 25 25% 15%;
+
+    --popover: 44 21% 97%;
+    --popover-foreground: 25 25% 15%;
+
+    --primary: 14 85% 45%;
+    --primary-foreground: 44 21% 97%;
+
+    --secondary: 33 45% 90%;
+    --secondary-foreground: 25 25% 15%;
+
+    --muted: 33 35% 92%;
+    --muted-foreground: 25 15% 45%;
+
+    --accent: 14 85% 45%;
+    --accent-foreground: 44 21% 97%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 33 25% 85%;
+    --input: 33 25% 85%;
+    --ring: 14 85% 45%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 25 35% 8%;
+    --sidebar-foreground: 33 45% 88%;
+    --sidebar-primary: 14 85% 45%;
+    --sidebar-primary-foreground: 44 21% 97%;
+    --sidebar-accent: 25 30% 15%;
+    --sidebar-accent-foreground: 33 45% 88%;
+    --sidebar-border: 25 25% 20%;
+    --sidebar-ring: 14 85% 45%;
+
+    /* Companhia do Churrasco custom colors */
+    --churrasco-brown: 25 45% 25%;
+    --churrasco-red: 14 85% 45%;
+    --churrasco-orange: 25 85% 55%;
+    --churrasco-cream: 44 35% 95%;
+    --churrasco-dark: 25 35% 8%;
+  }
+
+  .dark {
+    --background: 25 35% 8%;
+    --foreground: 33 45% 88%;
+
+    --card: 25 35% 8%;
+    --card-foreground: 33 45% 88%;
+
+    --popover: 25 35% 8%;
+    --popover-foreground: 33 45% 88%;
+
+    --primary: 14 85% 45%;
+    --primary-foreground: 44 21% 97%;
+
+    --secondary: 25 30% 15%;
+    --secondary-foreground: 33 45% 88%;
+
+    --muted: 25 30% 15%;
+    --muted-foreground: 33 25% 65%;
+
+    --accent: 25 30% 15%;
+    --accent-foreground: 33 45% 88%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 25 25% 20%;
+    --input: 25 25% 20%;
+    --ring: 14 85% 45%;
+    --sidebar-background: 25 35% 8%;
+    --sidebar-foreground: 33 45% 88%;
+    --sidebar-primary: 14 85% 45%;
+    --sidebar-primary-foreground: 44 21% 97%;
+    --sidebar-accent: 25 30% 15%;
+    --sidebar-accent-foreground: 33 45% 88%;
+    --sidebar-border: 25 25% 20%;
+    --sidebar-ring: 14 85% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(rgba(139, 69, 19, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 69, 19, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .bg-churrasco-gradient {
+    background: linear-gradient(135deg, hsl(var(--churrasco-brown)), hsl(var(--churrasco-red)));
+  }
+
+  /* Custom churrasco wallpaper - moved to utilities layer */
+  .bg-churrasco-wallpaper {
+    background: linear-gradient(
+      135deg,
+      hsl(44 35% 95%) 0%,
+      hsl(44 35% 95% / 0.9) 25%,
+      hsl(44 21% 97%) 50%,
+      hsl(44 35% 95% / 0.8) 75%,
+      hsl(44 35% 95% / 0.6) 100%
+    ) !important;
+  }
+
+  .bg-churrasco-wallpaper-overlay {
+    background: radial-gradient(
+      ellipse at center,
+      transparent 0%,
+      hsl(44 35% 95% / 0.1) 35%,
+      hsl(14 85% 45% / 0.05) 70%,
+      hsl(25 45% 25% / 0.1) 100%
+    ) !important;
+  }
+
+  .bg-churrasco-pattern {
+    background-image: 
+      repeating-linear-gradient(
+        45deg,
+        transparent 0px,
+        transparent 4px,
+        hsl(25 45% 25% / 0.03) 4px,
+        hsl(25 45% 25% / 0.03) 8px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent 0px,
+        transparent 4px,
+        hsl(14 85% 45% / 0.02) 4px,
+        hsl(14 85% 45% / 0.02) 8px
+      ),
+      radial-gradient(
+        circle at 25% 25%,
+        hsl(25 85% 55% / 0.05) 1px,
+        transparent 1px
+      ),
+      radial-gradient(
+        circle at 75% 75%,
+        hsl(25 45% 25% / 0.03) 1px,
+        transparent 1px
+      ) !important;
+    background-size: 40px 40px, 40px 40px, 60px 60px, 80px 80px !important;
+    background-position: 0 0, 0 0, 30px 30px, 40px 40px !important;
+  }
+
+  .text-churrasco-red {
+    color: hsl(var(--churrasco-red));
+  }
+
+  .text-churrasco-brown {
+    color: hsl(var(--churrasco-brown));
+  }
+
+  .bg-churrasco-red {
+    background-color: hsl(var(--churrasco-red));
+  }
+
+  .bg-churrasco-brown {
+    background-color: hsl(var(--churrasco-brown));
+  }
+
+  /* Melhorias visuais gerais */
+  .hover-lift {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .gradient-border {
+    position: relative;
+    background: white;
+    border-radius: 0.5rem;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0.5rem;
+    padding: 2px;
+    background: linear-gradient(135deg, hsl(var(--churrasco-red)), hsl(var(--churrasco-orange)));
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--churrasco-red)), hsl(var(--churrasco-orange)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Animações suaves */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+}

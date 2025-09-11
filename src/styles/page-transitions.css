@@ -1,0 +1,56 @@
+
+.page-transition-optimized {
+  /* Animações de transição de página */
+}
+
+/* Garantir que os dialogs tenham z-index alto suficiente */
+[data-radix-dialog-overlay] {
+  z-index: 100 !important;
+}
+
+[data-radix-dialog-content] {
+  z-index: 101 !important;
+}
+
+/* Garantir que drawers também tenham z-index adequado */
+[data-vaul-drawer-wrapper] {
+  z-index: 100 !important;
+}
+
+[data-vaul-overlay] {
+  z-index: 100 !important;
+}
+
+[data-vaul-drawer] {
+  z-index: 101 !important;
+}
+
+/* Garantir que os dialogs sejam visíveis */
+.dialog-content {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 101 !important;
+  background: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+}
+
+.dialog-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 100 !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Animações para mobile */
+@media (max-width: 768px) {
+  .dialog-content {
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
+    margin: 1rem !important;
+  }
+}
