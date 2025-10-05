@@ -154,7 +154,13 @@ export function useCamaraFriaData(selectedUnidade?: 'juazeiro_norte' | 'fortalez
         observacoes: newItem.observacoes?.trim() || null,
         preco_unitario: newItem.preco_unitario,
         user_id: user.id,
-        unidade: newItem.unidade_item || 'juazeiro_norte'
+        unidade: newItem.unidade_item || 'juazeiro_norte',
+        // Campos ABC
+        unit_cost: (newItem as any).unit_cost || null,
+        annual_demand: (newItem as any).annual_demand || null,
+        ordering_cost: (newItem as any).ordering_cost || null,
+        carrying_cost_percentage: (newItem as any).carrying_cost_percentage || null,
+        lead_time_days: (newItem as any).lead_time_days || null
       };
 
       console.log('Item para inserir no banco:', itemToInsert);

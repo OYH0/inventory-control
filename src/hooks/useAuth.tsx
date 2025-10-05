@@ -3,6 +3,8 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logInfo, logError, logWarn } from '@/lib/logger';
+import { sanitizeEmail, isValidEmail, isValidPassword, rateLimiter } from '@/lib/validation';
 
 interface AuthContextType {
   user: User | null;
@@ -110,13 +112,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
+      
+      // Validate email
+      const sanitizedEmail = sanitizeEmail(email);
+      if (!isValidEmail(sanitizedEmail)) {
+        const error = { message: 'Email inválido' };
+        toast({
+          title: "Email inválido",
+          description: "Por favor, insira um email válido.",
+          variant: "destructive",
+        });
+        return { error };
+      }
+      
+      // Rate limiting
+      if (!rateLimiter.isAllowed(`login:${sanitizedEmail}`, 5, 60000)) {
+        const error = { message: 'Rate limit exceeded' };
+        toast({
+          title: "Muitas tentativas de login",
+          description: "Aguarde 1 minuto antes de tentar novamente.",
+          variant: "destructive",
+        });
+        logWarn('Login rate limit exceeded', {
+          action: 'sign_in',
+          metadata: { email: sanitizedEmail }
+        });
+        return { error };
+      }
+      
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: sanitizedEmail,
         password,
       });
       
       if (error) {
-        console.error('Sign in error:', error);
+        logError('Sign in error', error, {
+          action: 'sign_in',
+          metadata: { email: sanitizedEmail }
+        });
         
         if (error.message?.includes('rate limit') || error.message?.includes('429')) {
           toast({
@@ -132,6 +165,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
         }
       } else {
+        logInfo('User signed in successfully', {
+          action: 'sign_in',
+          userId: user?.id,
+          metadata: { email: sanitizedEmail }
+        });
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta!",
@@ -140,7 +178,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       return { error };
     } catch (error: any) {
-      console.error('Sign in failed:', error);
+      logError('Sign in failed', error, {
+        action: 'sign_in'
+      });
       toast({
         title: "Erro no login",
         description: "Falha na conexão. Tente novamente.",
@@ -155,15 +195,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
       setLoading(true);
+      
+      // Validate email
+      const sanitizedEmail = sanitizeEmail(email);
+      if (!isValidEmail(sanitizedEmail)) {
+        const error = { message: 'Email inválido' };
+        toast({
+          title: "Email inválido",
+          description: "Por favor, insira um email válido.",
+          variant: "destructive",
+        });
+        return { error };
+      }
+      
+      // Validate password
+      const passwordValidation = isValidPassword(password);
+      if (!passwordValidation.valid) {
+        const error = { message: passwordValidation.errors.join(', ') };
+        toast({
+          title: "Senha fraca",
+          description: passwordValidation.errors.join(' '),
+          variant: "destructive",
+        });
+        return { error };
+      }
+      
+      // Rate limiting
+      if (!rateLimiter.isAllowed(`signup:${sanitizedEmail}`, 3, 300000)) {
+        const error = { message: 'Rate limit exceeded' };
+        toast({
+          title: "Muitas tentativas de cadastro",
+          description: "Aguarde 5 minutos antes de tentar novamente.",
+          variant: "destructive",
+        });
+        logWarn('Signup rate limit exceeded', {
+          action: 'sign_up',
+          metadata: { email: sanitizedEmail }
+        });
+        return { error };
+      }
+      
       const redirectUrl = `${window.location.origin}/`;
       
       const { error } = await supabase.auth.signUp({
-        email,
+        email: sanitizedEmail,
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            full_name: fullName || email,
+            full_name: fullName || sanitizedEmail,
           }
         }
       });
@@ -183,6 +263,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
         }
       } else {
+        logInfo('User signed up successfully', {
+          action: 'sign_up',
+          metadata: { email: sanitizedEmail }
+        });
         toast({
           title: "Conta criada com sucesso!",
           description: "Verifique seu email para confirmar a conta.",
@@ -191,6 +275,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       return { error };
     } catch (error: any) {
+      logError('Sign up failed', error, {
+        action: 'sign_up'
+      });
       toast({
         title: "Erro no cadastro",
         description: "Falha na conexão. Tente novamente.",
@@ -205,12 +292,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setLoading(true);
-      console.log('Iniciando logout...');
+      logInfo('User signing out', {
+        action: 'sign_out',
+        userId: user?.id
+      });
       
       const { error } = await supabase.auth.signOut();
       
       if (error && !error.message?.toLowerCase().includes('session not found')) {
-        console.error('Erro no logout:', error);
+        logError('Sign out error', error, {
+          action: 'sign_out',
+          userId: user?.id
+        });
         toast({
           title: "Erro no logout",
           description: error.message,
@@ -223,13 +316,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null);
       setUser(null);
       
-      console.log('Logout realizado com sucesso');
+      logInfo('User signed out successfully', {
+        action: 'sign_out'
+      });
       toast({
         title: "Logout realizado",
         description: "Até logo!",
       });
     } catch (error: any) {
-      console.error('Falha no logout:', error);
+      logError('Sign out failed', error, {
+        action: 'sign_out',
+        userId: user?.id
+      });
       // Para erros de sessão não encontrada, ainda fazemos logout local
       if (error?.message?.toLowerCase().includes('session not found')) {
         setSession(null);

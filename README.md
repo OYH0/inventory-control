@@ -1,8 +1,93 @@
-# Gestão de Estoque - Melhorias e Correções
+# 🏢 Inventory Control System
+
+Sistema profissional de controle de inventário multi-tenant com rastreamento de validade, análise ABC e notificações inteligentes.
+
+## ✨ Features Principais
+
+- 📊 **Dashboard Analítico**: Métricas em tempo real e visualizações
+- 🏷️ **Análise ABC**: Classificação automática de produtos por importância
+- ⏰ **Alertas de Validade**: Notificações automáticas de produtos próximos ao vencimento
+- 📱 **QR Code Scanner**: Leitura de códigos para entrada rápida
+- 🔐 **Multi-tenant**: Isolamento completo de dados por usuário
+- 📈 **Histórico Completo**: Rastreamento de todas as operações
+- 🎨 **UI Moderna**: Interface responsiva com shadcn/ui e Tailwind CSS
+
+## 🚀 Quick Start
+
+### Pré-requisitos
+```bash
+Node.js >= 18.x
+npm >= 9.x
+```
+
+### Instalação
+```bash
+# 1. Clonar repositório
+git clone <repository-url>
+cd inventory-control
+
+# 2. Instalar dependências
+npm install
+
+# 3. Configurar variáveis de ambiente
+cp .env.example .env
+# Editar .env com suas credenciais Supabase
+
+# 4. Executar em desenvolvimento
+npm run dev
+
+# 5. Acessar aplicação
+# http://localhost:5173
+```
+
+## 📋 Comandos Disponíveis
+
+```bash
+npm run dev              # Desenvolvimento
+npm run build            # Build produção
+npm test                 # Executar testes
+npm run test:coverage    # Cobertura de testes
+npm run lint             # Lint código
+```
+
+## 🔐 Segurança Implementada
+
+### ✅ Features de Segurança
+- **Validação de Inputs**: Sanitização XSS e validação com Zod
+- **Rate Limiting**: Proteção contra ataques de força bruta
+- **Logging Estruturado**: Rastreamento completo de operações
+- **Autenticação JWT**: Via Supabase Auth com refresh tokens
+- **Row Level Security**: Isolamento de dados no banco
+- **Variáveis de Ambiente**: Sem credenciais hardcoded
+
+Ver detalhes em: [`SECURITY_IMPLEMENTATION.md`](./SECURITY_IMPLEMENTATION.md)
+
+## 🏗️ Arquitetura
+
+### Stack Tecnológica
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI**: shadcn/ui + Tailwind CSS + Radix UI
+- **State**: TanStack Query (React Query)
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)
+- **Validação**: Zod
+- **Testes**: Vitest + Testing Library
+
+### Estrutura em Camadas
+```
+Presentation Layer (Components)
+    ↓
+Application Layer (Hooks)
+    ↓
+Domain Layer (Services + Validation)
+    ↓
+Infrastructure Layer (Supabase)
+```
+
+Ver detalhes em: [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 
 ## 📦 Conteúdo do Pacote
 
-Este arquivo ZIP contém todas as correções e melhorias implementadas no sistema de gestão de estoque.
+Este repositório contém todas as correções e melhorias implementadas no sistema de gestão de estoque.
 
 ### 🔧 Arquivos Corrigidos (CRÍTICOS)
 
@@ -103,12 +188,126 @@ Após aplicar todas as correções:
 - ✅ Performance melhorada
 - ✅ Sistema de auditoria ativo
 
+## 📚 Documentação
+
+- [`README.md`](./README.md) - Este arquivo (visão geral)
+- [`SECURITY_IMPLEMENTATION.md`](./SECURITY_IMPLEMENTATION.md) - Guia de segurança completo
+- [`ARCHITECTURE.md`](./ARCHITECTURE.md) - Arquitetura detalhada do sistema
+- [`DEVELOPER_GUIDE.md`](./DEVELOPER_GUIDE.md) - Guia para desenvolvedores
+- [`GUIA_IMPLEMENTACAO.md`](./GUIA_IMPLEMENTACAO.md) - Instruções de implementação
+
+## 🧪 Testes
+
+### Executar Testes
+```bash
+# Todos os testes
+npm test
+
+# Com interface visual
+npm run test:ui
+
+# Com cobertura
+npm run test:coverage
+```
+
+### Cobertura Atual
+- **Target**: 80% de cobertura
+- **Testes**: Validação, sanitização, rate limiting
+- **Framework**: Vitest + Testing Library
+
+## 🔧 Configuração
+
+### Variáveis de Ambiente Obrigatórias
+```env
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica
+```
+
+### Variáveis Opcionais (Futuro)
+```env
+VITE_SENTRY_DSN=          # Error tracking
+VITE_REDIS_URL=           # Cache
+VITE_CDN_URL=             # Assets
+```
+
+## 🚀 Deploy
+
+### Vercel (Recomendado)
+```bash
+vercel --prod
+```
+
+### Netlify
+```bash
+netlify deploy --prod
+```
+
+### Variáveis de Ambiente no Deploy
+Configurar as mesmas variáveis do `.env` no painel do provedor.
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Criar branch: `git checkout -b feature/nova-funcionalidade`
+3. Commit: `git commit -m "feat: adiciona nova funcionalidade"`
+4. Push: `git push origin feature/nova-funcionalidade`
+5. Abrir Pull Request
+
+Ver guia completo em: [`DEVELOPER_GUIDE.md`](./DEVELOPER_GUIDE.md)
+
+## 📊 Status do Projeto
+
+### ✅ Implementado
+- [x] Sistema de autenticação seguro
+- [x] CRUD completo de produtos
+- [x] Análise ABC
+- [x] Alertas de validade
+- [x] QR Code Scanner
+- [x] Dashboard com métricas
+- [x] Histórico de operações
+- [x] Multi-tenant com RLS
+- [x] Validação e sanitização
+- [x] Logging estruturado
+- [x] Rate limiting
+- [x] Testes unitários
+
+### 🔄 Em Desenvolvimento
+- [ ] Internacionalização (i18n)
+- [ ] Cache com Redis
+- [ ] Notificações push
+- [ ] Exportação de relatórios
+- [ ] API REST documentada (OpenAPI)
+
+### 🎯 Roadmap
+- [ ] Progressive Web App (PWA)
+- [ ] Modo offline
+- [ ] Integração com ERP
+- [ ] Machine Learning para previsão de demanda
+- [ ] App mobile nativo (React Native)
+
 ## 📞 Suporte
 
-Consulte o `GUIA_IMPLEMENTACAO.md` para instruções detalhadas ou o `relatorio_melhorias.pdf` para informações completas sobre as melhorias implementadas.
+### Documentação
+- Consulte [`DEVELOPER_GUIDE.md`](./DEVELOPER_GUIDE.md) para guia completo
+- Veja [`SECURITY_IMPLEMENTATION.md`](./SECURITY_IMPLEMENTATION.md) para segurança
+- Leia [`ARCHITECTURE.md`](./ARCHITECTURE.md) para arquitetura
+
+### Issues
+Para reportar bugs ou solicitar features, abra uma issue no repositório.
+
+### Contato
+- **Email**: suporte@inventorycontrol.com
+- **Documentação**: https://docs.inventorycontrol.com
 
 ---
-**Versão:** 2.0 - Corrigida e Otimizada  
-**Data:** 17 de junho de 2025  
-**Desenvolvido por:** Manus AI
+
+## 📄 Licença
+
+Este projeto está sob licença MIT. Ver arquivo `LICENSE` para mais detalhes.
+
+---
+
+**Versão:** 3.0 - Enterprise Grade  
+**Última Atualização:** 05 de outubro de 2025  
+**Desenvolvido com**: ❤️ seguindo as melhores práticas de desenvolvimento
 

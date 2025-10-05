@@ -139,7 +139,13 @@ export function useBebidas(selectedUnidade?: 'juazeiro_norte' | 'fortaleza' | 't
         observacoes: newItem.observacoes?.trim() || null,
         unidade_item: newItem.unidade_item || 'juazeiro_norte',
         minimo: newItem.minimo || 10,
-        preco_unitario: newItem.preco_unitario || null
+        preco_unitario: newItem.preco_unitario || null,
+        // Campos ABC
+        unit_cost: (newItem as any)?.unit_cost || null,
+        annual_demand: (newItem as any)?.annual_demand || null,
+        ordering_cost: (newItem as any)?.ordering_cost || null,
+        carrying_cost_percentage: (newItem as any)?.carrying_cost_percentage || null,
+        lead_time_days: (newItem as any)?.lead_time_days || null
       };
 
       const { data, error } = await supabase

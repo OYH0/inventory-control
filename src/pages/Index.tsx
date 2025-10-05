@@ -11,6 +11,7 @@ import Descartaveis from '@/components/Descartaveis';
 import Bebidas from '@/components/Bebidas';
 import { UserManagement } from '@/components/UserManagement';
 import { ExpiryAlertDashboard } from '@/components/expiry-alerts/ExpiryAlertDashboard';
+import { ABCDashboard } from '@/components/abc-analysis/ABCDashboard';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { NavigationIndicator } from '@/components/NavigationIndicator';
 import { SwipeHint } from '@/components/SwipeHint';
@@ -29,6 +30,8 @@ const Index = () => {
     '/estoque-seco',
     '/descartaveis',
     '/bebidas',
+    '/alertas-vencimento',
+    '/analise-abc',
     '/configuracoes',
   ];
 
@@ -39,6 +42,8 @@ const Index = () => {
     'Estoque Seco',
     'Descartáveis',
     'Bebidas',
+    'Alertas',
+    'Análise ABC',
     'Configurações',
   ];
 
@@ -123,6 +128,7 @@ const Index = () => {
                         <Route path="/descartaveis" element={<Descartaveis />} />
                         <Route path="/bebidas" element={<Bebidas />} />
                         <Route path="/alertas-vencimento" element={<ExpiryAlertDashboard />} />
+                        <Route path="/analise-abc" element={<ABCDashboard />} />
                         <Route path="/configuracoes" element={<UserManagement />} />
                       </Routes>
                     </div>
