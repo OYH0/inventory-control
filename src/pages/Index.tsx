@@ -10,6 +10,7 @@ import EstoqueSeco from '@/components/EstoqueSeco';
 import Descartaveis from '@/components/Descartaveis';
 import Bebidas from '@/components/Bebidas';
 import { UserManagement } from '@/components/UserManagement';
+import { ExpiryAlertDashboard } from '@/components/expiry-alerts/ExpiryAlertDashboard';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { NavigationIndicator } from '@/components/NavigationIndicator';
 import { SwipeHint } from '@/components/SwipeHint';
@@ -121,6 +122,7 @@ const Index = () => {
                         <Route path="/estoque-seco" element={<EstoqueSeco />} />
                         <Route path="/descartaveis" element={<Descartaveis />} />
                         <Route path="/bebidas" element={<Bebidas />} />
+                        <Route path="/alertas-vencimento" element={<ExpiryAlertDashboard />} />
                         <Route path="/configuracoes" element={<UserManagement />} />
                       </Routes>
                     </div>

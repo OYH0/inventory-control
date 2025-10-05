@@ -7,8 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Shield, MapPin, RefreshCw } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Users, Shield, MapPin, RefreshCw, Bell } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ExpiryAlertSettings } from '@/components/expiry-alerts/ExpiryAlertSettings';
 
 interface UserProfile {
   id: string;
@@ -181,22 +183,35 @@ export function UserManagement() {
   return (
     <AdminGuard>
       <div className="container mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
-        <div className="flex flex-col space-y-4 md:flex-row md:items-start md:justify-between md:space-y-0">
-          <div className="text-sm text-muted-foreground space-y-2">
-            <p className="font-medium">Usuários encontrados: {users.length}</p>
-            <div className="space-y-1 text-xs md:text-sm">
-              <p><strong>Admin:</strong> Pode ver e modificar dados de todas as unidades + transferir itens</p>
-              <p><strong>Gerente:</strong> Pode ver dados de todas as unidades, mas só pode modificar itens da sua unidade</p>
-              <p><strong>Visualizador:</strong> Só pode visualizar dados de todas as unidades</p>
-            </div>
-          </div>
-          <Button onClick={fetchUsers} variant="outline" size={isMobile ? "sm" : "default"}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Atualizar
-          </Button>
-        </div>
+        <Tabs defaultValue="users" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="users">
+              <Users className="h-4 w-4 mr-2" />
+              Usuários
+            </TabsTrigger>
+            <TabsTrigger value="alerts">
+              <Bell className="h-4 w-4 mr-2" />
+              Alertas de Vencimento
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="grid gap-4">
+          <TabsContent value="users" className="space-y-6">
+            <div className="flex flex-col space-y-4 md:flex-row md:items-start md:justify-between md:space-y-0">
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p className="font-medium">Usuários encontrados: {users.length}</p>
+                <div className="space-y-1 text-xs md:text-sm">
+                  <p><strong>Admin:</strong> Pode ver e modificar dados de todas as unidades + transferir itens</p>
+                  <p><strong>Gerente:</strong> Pode ver dados de todas as unidades, mas só pode modificar itens da sua unidade</p>
+                  <p><strong>Visualizador:</strong> Só pode visualizar dados de todas as unidades</p>
+                </div>
+              </div>
+              <Button onClick={fetchUsers} variant="outline" size={isMobile ? "sm" : "default"}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Atualizar
+              </Button>
+            </div>
+
+            <div className="grid gap-4">
           {users.map((user) => (
             <Card key={user.id}>
               <CardHeader className="pb-3">
@@ -261,14 +276,26 @@ export function UserManagement() {
           ))}
         </div>
 
-        {users.length === 0 && !loading && (
-          <Card>
-            <CardContent className="text-center py-8">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Nenhum usuário encontrado</p>
-            </CardContent>
-          </Card>
-        )}
+            {users.length === 0 && !loading && (
+              <Card>
+                <CardContent className="text-center py-8">
+                  <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">Nenhum usuário encontrado</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="alerts" className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Configurações de Alertas de Vencimento</h3>
+              <p className="text-sm text-muted-foreground">
+                Gerencie suas preferências de notificação e limites de alerta
+              </p>
+            </div>
+            <ExpiryAlertSettings />
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminGuard>
   );

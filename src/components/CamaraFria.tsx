@@ -53,7 +53,10 @@ export default function CamaraFria() {
     unidade: 'kg',
     categoria: '',
     minimo: 0,
-    unidade_item: selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade as 'juazeiro_norte' | 'fortaleza'
+    unidade_item: selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade as 'juazeiro_norte' | 'fortaleza',
+    data_validade: '',
+    fornecedor: '',
+    batch_number: ''
   });
   
   // States for managing editing and thawing

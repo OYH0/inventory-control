@@ -13,6 +13,9 @@ interface NewItem {
   categoria: string;
   minimo: number;
   unidade_item: 'juazeiro_norte' | 'fortaleza';
+  data_validade?: string;
+  fornecedor?: string;
+  batch_number?: string;
 }
 
 interface CamaraFriaAddDialogProps {
@@ -210,6 +213,41 @@ export function CamaraFriaAddDialog({
           <p id="minimo-help" className="text-xs text-gray-500">
             Quando o estoque atingir esta quantidade, será exibido um alerta
           </p>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="data_validade">Data de Validade ⚠️</Label>
+          <Input
+            id="data_validade"
+            type="date"
+            value={newItem.data_validade || ''}
+            onChange={(e) => setNewItem({...newItem, data_validade: e.target.value})}
+            aria-describedby="validade-help"
+            className="cursor-pointer"
+          />
+          <p id="validade-help" className="text-xs text-gray-500">
+            Importante para alertas de vencimento automáticos
+          </p>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="fornecedor">Fornecedor (Opcional)</Label>
+          <Input
+            id="fornecedor"
+            placeholder="Nome do fornecedor"
+            value={newItem.fornecedor || ''}
+            onChange={(e) => setNewItem({...newItem, fornecedor: e.target.value})}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="batch_number">Número do Lote (Opcional)</Label>
+          <Input
+            id="batch_number"
+            placeholder="Ex: L2025-001"
+            value={newItem.batch_number || ''}
+            onChange={(e) => setNewItem({...newItem, batch_number: e.target.value})}
+          />
         </div>
         
         <div className="flex gap-2 justify-end pt-4">
