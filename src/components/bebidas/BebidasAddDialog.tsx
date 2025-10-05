@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
+import { ChevronDown, BarChart3, Info } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface NewItem {
   nome: string;
@@ -16,6 +24,12 @@ interface NewItem {
   fornecedor?: string;
   data_validade?: string;
   batch_number?: string;
+  // Campos ABC
+  unit_cost?: number;
+  annual_demand?: number;
+  ordering_cost?: number;
+  carrying_cost_percentage?: number;
+  lead_time_days?: number;
 }
 
 interface BebidasAddDialogProps {
@@ -35,6 +49,7 @@ export function BebidasAddDialog({
   categorias,
   selectedUnidade
 }: BebidasAddDialogProps) {
+  const [abcSectionOpen, setAbcSectionOpen] = useState(false);
   const isFormValid = newItem.nome.trim() !== '' && newItem.categoria !== '';
 
   const handleQuantidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,14 +127,14 @@ export function BebidasAddDialog({
   };
 
   return (
-    <DialogContent className="sm:max-w-[425px]" aria-describedby="dialog-description">
-      <DialogHeader>
+    <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden flex flex-col" aria-describedby="dialog-description">
+      <DialogHeader className="flex-shrink-0">
         <DialogTitle>Adicionar Nova Bebida</DialogTitle>
         <DialogDescription id="dialog-description">
           Preencha os dados da nova bebida para adicionar ao estoque
         </DialogDescription>
       </DialogHeader>
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-y-auto pr-2 flex-1" style={{ maxHeight: 'calc(85vh - 140px)' }}>
         <div className="space-y-2">
           <Label htmlFor="nome">Nome da Bebida *</Label>
           <Input
@@ -270,24 +285,189 @@ export function BebidasAddDialog({
           />
         </div>
         
-        <div className="flex gap-2 justify-end pt-4">
-          <Button variant="outline" onClick={() => setDialogOpen(false)}>
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleAddItem} 
-            className="bg-blue-500 hover:bg-blue-600"
-            disabled={!isFormValid}
-            aria-describedby={!isFormValid ? 'button-help' : undefined}
-          >
-            Adicionar
-          </Button>
-          {!isFormValid && (
-            <span id="button-help" className="sr-only">
-              Preencha os campos obrigatórios para habilitar o botão
-            </span>
-          )}
-        </div>
+        {/* Seção ABC - Análise de Inventário */}
+        <Collapsible
+          open={abcSectionOpen}
+          onOpenChange={setAbcSectionOpen}
+          className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50/50"
+        >
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-between p-0 hover:bg-transparent"
+              type="button"
+            >
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                <span className="font-semibold text-blue-900">
+                  📊 Dados para Análise ABC (Opcional)
+                </span>
+              </div>
+              <ChevronDown
+                className={`h-5 w-5 text-blue-600 transition-transform ${
+                  abcSectionOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </Button>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent className="space-y-4 mt-4">
+            <div className="bg-blue-100 border border-blue-300 rounded-md p-3 mb-4">
+              <p className="text-sm text-blue-900">
+                <strong>💡 Dica:</strong> Preencha estes campos para ativar a <strong>Análise ABC</strong> automática,
+                que classifica produtos por importância e sugere estratégias de estoque (EOQ, ponto de reordenamento, etc).
+              </p>
+            </div>
+
+            <TooltipProvider>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="unit_cost">Custo Unitário (R$)</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>Preço de compra de uma unidade deste produto. Usado para calcular o valor total de consumo anual.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Input
+                  id="unit_cost"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Ex: 5.00"
+                  value={newItem.unit_cost || ''}
+                  onChange={(e) => setNewItem({...newItem, unit_cost: parseFloat(e.target.value) || undefined})}
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="annual_demand">Demanda Anual (unidades/ano)</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>Quantidade estimada que você vende/usa por ano. Essencial para classificação ABC e cálculo de EOQ.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Input
+                  id="annual_demand"
+                  type="number"
+                  min="0"
+                  placeholder="Ex: 3000"
+                  value={newItem.annual_demand || ''}
+                  onChange={(e) => setNewItem({...newItem, annual_demand: parseInt(e.target.value) || undefined})}
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="ordering_cost">Custo de Pedido (R$)</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>Custo fixo para fazer um pedido (frete, processamento, etc). Padrão sugerido: R$ 50,00</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Input
+                  id="ordering_cost"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Ex: 50.00 (padrão sugerido)"
+                  value={newItem.ordering_cost || ''}
+                  onChange={(e) => setNewItem({...newItem, ordering_cost: parseFloat(e.target.value) || undefined})}
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="carrying_cost_percentage">% Custo de Manutenção</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>Percentual do custo para manter produto em estoque (energia, espaço, etc). Padrão: 20%</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Input
+                  id="carrying_cost_percentage"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  placeholder="Ex: 20 (padrão sugerido)"
+                  value={newItem.carrying_cost_percentage || ''}
+                  onChange={(e) => setNewItem({...newItem, carrying_cost_percentage: parseFloat(e.target.value) || undefined})}
+                  className="bg-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="lead_time_days">Lead Time (dias)</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <p>Tempo entre fazer o pedido e receber o produto. Usado para calcular ponto de reordenamento.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Input
+                  id="lead_time_days"
+                  type="number"
+                  min="0"
+                  placeholder="Ex: 3"
+                  value={newItem.lead_time_days || ''}
+                  onChange={(e) => setNewItem({...newItem, lead_time_days: parseInt(e.target.value) || undefined})}
+                  className="bg-white"
+                />
+              </div>
+            </TooltipProvider>
+
+            <div className="bg-green-100 border border-green-300 rounded-md p-3 mt-4">
+              <p className="text-sm text-green-900">
+                ✅ Após salvar, vá em <strong>"Análise ABC"</strong> no menu e clique em <strong>"Classificar Agora"</strong>
+                para ver a categoria do produto (A, B ou C) e recomendações automáticas!
+              </p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+      
+      {/* Botões fixos no rodapé */}
+      <div className="flex gap-2 justify-end pt-4 border-t mt-4 flex-shrink-0">
+        <Button variant="outline" onClick={() => setDialogOpen(false)}>
+          Cancelar
+        </Button>
+        <Button 
+          onClick={handleAddItem} 
+          className="bg-blue-500 hover:bg-blue-600"
+          disabled={!isFormValid}
+          aria-describedby={!isFormValid ? 'button-help' : undefined}
+        >
+          Adicionar
+        </Button>
+        {!isFormValid && (
+          <span id="button-help" className="sr-only">
+            Preencha os campos obrigatórios para habilitar o botão
+          </span>
+        )}
       </div>
     </DialogContent>
   );

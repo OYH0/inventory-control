@@ -84,7 +84,13 @@ export function useEstoqueSecoData() {
         fornecedor: newItem.fornecedor,
         observacoes: newItem.observacoes,
         user_id: user.id,
-        unidade: newItem.unidade_item || 'juazeiro_norte'
+        unidade: newItem.unidade_item || 'juazeiro_norte',
+        // Campos ABC
+        unit_cost: (newItem as any).unit_cost,
+        annual_demand: (newItem as any).annual_demand,
+        ordering_cost: (newItem as any).ordering_cost,
+        carrying_cost_percentage: (newItem as any).carrying_cost_percentage,
+        lead_time_days: (newItem as any).lead_time_days
       };
       
       console.log('Item para inserir no banco:', itemToInsert);
