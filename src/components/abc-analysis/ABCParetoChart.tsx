@@ -24,7 +24,55 @@ interface ABCParetoChartProps {
   isLoading?: boolean;
 }
 
+// Custom Tooltip Component
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const item = payload[0].payload;
+    return (
+      <div className="bg-white border border-gray-300 rounded-lg p-3 shadow-lg">
+        <p className="font-bold text-sm mb-1">{item.fullName}</p>
+        {item.sku && <p className="text-xs text-gray-500 mb-2">SKU: {item.sku}</p>}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-sm">
+            <span 
+              className="inline-block w-3 h-3 rounded-full" 
+              style={{ backgroundColor: item.fill }}
+            />
+            <span>Categoria {item.category}</span>
+          </div>
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="text-sm">
+              <span className="font-medium">{entry.name}: </span>
+              <span>
+                {entry.name === 'Valor Anual' 
+                  ? new Intl.NumberFormat('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    }).format(entry.value)
+                  : `${entry.value.toFixed(2)}%`
+                }
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function ABCParetoChart({ data, isLoading }: ABCParetoChartProps) {
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'A': return '#ef4444'; // red-500
+      case 'B': return '#f59e0b'; // yellow-500
+      case 'C': return '#10b981'; // green-500
+      default: return '#6b7280'; // gray-500
+    }
+  };
+  
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return [];
     
@@ -36,27 +84,10 @@ export function ABCParetoChart({ data, isLoading }: ABCParetoChartProps) {
       valor: item.annual_value,
       acumulado: item.cumulative_percentage,
       category: item.category,
+      fill: getCategoryColor(item.category), // Adicionar cor diretamente aos dados
       index: index + 1
     }));
   }, [data]);
-  
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  };
-  
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'A': return '#ef4444'; // red-500
-      case 'B': return '#f59e0b'; // yellow-500
-      case 'C': return '#10b981'; // green-500
-      default: return '#6b7280'; // gray-500
-    }
-  };
   
   if (isLoading) {
     return (
@@ -139,42 +170,7 @@ export function ABCParetoChart({ data, isLoading }: ABCParetoChartProps) {
               tickFormatter={(value) => `${value}%`}
             />
             
-            <Tooltip
-              contentStyle={{ 
-                backgroundColor: 'white', 
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                padding: '12px'
-              }}
-              formatter={(value: any, name: string, props: any) => {
-                if (name === 'Valor Anual') {
-                  return [formatCurrency(value), name];
-                }
-                if (name === '% Acumulado') {
-                  return [`${value.toFixed(2)}%`, name];
-                }
-                return [value, name];
-              }}
-              labelFormatter={(label, payload) => {
-                if (payload && payload[0]) {
-                  const item = payload[0].payload;
-                  return (
-                    <div>
-                      <p className="font-bold">{item.fullName}</p>
-                      {item.sku && <p className="text-xs text-gray-500">SKU: {item.sku}</p>}
-                      <p className="text-xs">
-                        <span 
-                          className="inline-block w-3 h-3 rounded-full mr-1" 
-                          style={{ backgroundColor: getCategoryColor(item.category) }}
-                        />
-                        Categoria {item.category}
-                      </p>
-                    </div>
-                  );
-                }
-                return label;
-              }}
-            />
+            <Tooltip content={<CustomTooltip />} />
             
             <Legend 
               wrapperStyle={{ paddingTop: '20px' }}
@@ -203,7 +199,6 @@ export function ABCParetoChart({ data, isLoading }: ABCParetoChartProps) {
               yAxisId="left"
               dataKey="valor"
               name="Valor Anual"
-              fill={(entry: any) => getCategoryColor(entry.category)}
               radius={[4, 4, 0, 0]}
             />
             
