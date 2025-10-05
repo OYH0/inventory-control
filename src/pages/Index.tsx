@@ -12,6 +12,9 @@ import Bebidas from '@/components/Bebidas';
 import { UserManagement } from '@/components/UserManagement';
 import { ExpiryAlertDashboard } from '@/components/expiry-alerts/ExpiryAlertDashboard';
 import { ABCDashboard } from '@/components/abc-analysis/ABCDashboard';
+import { OrdersDashboard } from '@/components/orders';
+import { OrderDetails } from '@/pages/OrderDetails';
+import { OrderEdit } from '@/pages/OrderEdit';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { NavigationIndicator } from '@/components/NavigationIndicator';
 import { SwipeHint } from '@/components/SwipeHint';
@@ -32,6 +35,7 @@ const Index = () => {
     '/bebidas',
     '/alertas-vencimento',
     '/analise-abc',
+    '/pedidos',
     '/configuracoes',
   ];
 
@@ -44,6 +48,7 @@ const Index = () => {
     'Bebidas',
     'Alertas',
     'Análise ABC',
+    'Pedidos',
     'Configurações',
   ];
 
@@ -129,6 +134,9 @@ const Index = () => {
                         <Route path="/bebidas" element={<Bebidas />} />
                         <Route path="/alertas-vencimento" element={<ExpiryAlertDashboard />} />
                         <Route path="/analise-abc" element={<ABCDashboard />} />
+                        <Route path="/pedidos" element={<OrdersDashboard />} />
+                        <Route path="/pedidos/:orderId" element={<OrderDetails />} />
+                        <Route path="/pedidos/:orderId/edit" element={<OrderEdit />} />
                         <Route path="/configuracoes" element={<UserManagement />} />
                       </Routes>
                     </div>

@@ -229,21 +229,21 @@ export class ABCAnalysisService {
       throw error;
     }
     
-    // Atualizar registros
+    // Atualizar registros existentes
     if (data && data.length > 0) {
-      const updates = data.map((item: any) => ({
-        id: item.product_id,
-        annual_demand: item.annual_demand,
-        annual_consumption_value: item.annual_value
-      }));
-      
-      // Batch update
-      const { error: updateError } = await supabase
-        .from(table_name)
-        .upsert(updates, { onConflict: 'id' });
-      
-      if (updateError) {
-        throw updateError;
+      // Atualizar cada produto individualmente (update, não upsert)
+      for (const item of data) {
+        const { error: updateError } = await supabase
+          .from(table_name)
+          .update({
+            annual_demand: item.annual_demand,
+            annual_consumption_value: item.annual_value
+          })
+          .eq('id', item.product_id);
+        
+        if (updateError) {
+          console.error(`Erro ao atualizar produto ${item.product_id}:`, updateError);
+        }
       }
     }
     
