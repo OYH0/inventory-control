@@ -125,7 +125,20 @@ export function sanitizeDate(dateString: string): Date | null {
  */
 export function isValidURL(url: string): boolean {
   try {
-    new URL(url);
+    // First check for dangerous protocols before creating URL object
+    if (url.toLowerCase().startsWith('javascript:') || 
+        url.toLowerCase().startsWith('data:') ||
+        url.toLowerCase().startsWith('vbscript:')) {
+      return false;
+    }
+    
+    const urlObj = new URL(url);
+    // Additional protocol check
+    if (urlObj.protocol === 'javascript:' || 
+        urlObj.protocol === 'data:' ||
+        urlObj.protocol === 'vbscript:') {
+      return false;
+    }
     return true;
   } catch {
     return false;
@@ -142,7 +155,12 @@ export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
     const sanitizedKey = sanitizeString(key);
     
     if (typeof value === 'string') {
-      sanitized[sanitizedKey] = sanitizeString(value);
+      // Special handling for email fields
+      if (key.toLowerCase().includes('email')) {
+        sanitized[sanitizedKey] = sanitizeEmail(value);
+      } else {
+        sanitized[sanitizedKey] = sanitizeString(value);
+      }
     } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       sanitized[sanitizedKey] = sanitizeObject(value);
     } else if (Array.isArray(value)) {
