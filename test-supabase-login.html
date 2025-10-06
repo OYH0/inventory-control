@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Login - Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status.show {
+            display: block;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .details {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-left: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .config-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+        
+        .config-info strong {
+            color: #667eea;
+        }
+        
+        .pre-filled {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Teste de Login - Supabase</h1>
+        <p class="subtitle">Sistema de Controle de Inventário</p>
+        
+        <div class="config-info">
+            <strong>📡 Projeto Supabase:</strong> uygwwqhjhozyljuxcgkd<br>
+            <strong>🌐 URL:</strong> https://uygwwqhjhozyljuxcgkd.supabase.co
+        </div>
+        
+        <div class="pre-filled">
+            ℹ️ <strong>Senha pré-configurada:</strong> cecOYH09118
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">📧 Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="seu@email.com"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password">🔑 Senha</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    value="cecOYH09118"
+                    placeholder="Digite sua senha"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+            
+            <button type="submit" id="loginBtn">
+                Fazer Login
+            </button>
+        </form>
+        
+        <div id="status" class="status"></div>
+    </div>
+
+    <script type="module">
+        // Configuração do Supabase
+        const SUPABASE_URL = 'https://uygwwqhjhozyljuxcgkd.supabase.co';
+        
+        // NOTA: A chave anon deve ser obtida do dashboard do Supabase
+        // Acesse: https://supabase.com/dashboard/project/uygwwqhjhozyljuxcgkd/settings/api
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5Z3d3cWhqaG96eWxqdXhjZ2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUzNDQwMDAsImV4cCI6MjA1MDkyMDAwMH0.placeholder';
+        
+        // Criar cliente Supabase
+        let supabase;
+        
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Cliente Supabase criado com sucesso');
+        } catch (error) {
+            console.error('❌ Erro ao criar cliente Supabase:', error);
+            showStatus('error', 'Erro ao inicializar Supabase: ' + error.message);
+        }
+        
+        // Elementos do DOM
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const statusDiv = document.getElementById('status');
+        
+        // Função para mostrar status
+        function showStatus(type, message, details = null) {
+            statusDiv.className = `status ${type} show`;
+            
+            let html = message;
+            
+            if (details) {
+                html += `<div class="details">${JSON.stringify(details, null, 2)}</div>`;
+            }
+            
+            statusDiv.innerHTML = html;
+            statusDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Verificar sessão existente ao carregar
+        async function checkSession() {
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) throw error;
+                
+                if (session) {
+                    showStatus('success', 
+                        '✅ Sessão ativa encontrada!',
+                        {
+                            user_id: session.user.id,
+                            email: session.user.email,
+                            expires_at: new Date(session.expires_at * 1000).toLocaleString('pt-BR')
+                        }
+                    );
+                    emailInput.value = session.user.email;
+                } else {
+                    showStatus('info', 'ℹ️ Nenhuma sessão ativa. Por favor, faça login.');
+                }
+            } catch (error) {
+                console.error('Erro ao verificar sessão:', error);
+            }
+        }
+        
+        // Testar conexão com o banco
+        async function testDatabaseConnection() {
+            try {
+                const { data, error } = await supabase
+                    .from('camara_fria_items')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (error) {
+                    console.warn('Aviso ao testar banco:', error.message);
+                    return false;
+                }
+                
+                console.log('✅ Conexão com banco de dados OK');
+                return true;
+            } catch (error) {
+                console.error('❌ Erro ao testar banco:', error);
+                return false;
+            }
+        }
+        
+        // Handler do formulário
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                showStatus('error', '❌ Por favor, preencha todos os campos.');
+                return;
+            }
+            
+            // Desabilitar botão e mostrar loading
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = 'Entrando... <span class="loader"></span>';
+            
+            try {
+                showStatus('info', '🔄 Tentando fazer login...');
+                
+                // Tentar fazer login
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // Login bem-sucedido
+                console.log('✅ Login bem-sucedido!', data);
+                
+                // Testar conexão com banco
+                const dbOk = await testDatabaseConnection();
+                
+                showStatus('success', 
+                    '✅ Login realizado com sucesso!',
+                    {
+                        user_id: data.user.id,
+                        email: data.user.email,
+                        role: data.user.role,
+                        created_at: new Date(data.user.created_at).toLocaleString('pt-BR'),
+                        last_sign_in: new Date(data.user.last_sign_in_at).toLocaleString('pt-BR'),
+                        database_connection: dbOk ? '✅ OK' : '⚠️ Verificar permissões',
+                        session_expires: new Date(data.session.expires_at * 1000).toLocaleString('pt-BR')
+                    }
+                );
+                
+                // Redirecionar após 3 segundos
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('❌ Erro no login:', error);
+                
+                let errorMessage = 'Erro desconhecido';
+                let errorDetails = {
+                    code: error.code,
+                    message: error.message,
+                };
+                
+                if (error.message.includes('Invalid login credentials')) {
+                    errorMessage = '❌ Email ou senha incorretos. Verifique suas credenciais.';
+                } else if (error.message.includes('Email not confirmed')) {
+                    errorMessage = '❌ Email não confirmado. Verifique sua caixa de entrada.';
+                } else if (error.message.includes('Missing Supabase environment')) {
+                    errorMessage = '❌ Configuração do Supabase incompleta. Verifique a chave anon.';
+                    errorDetails.note = 'Obtenha a chave em: https://supabase.com/dashboard/project/uygwwqhjhozyljuxcgkd/settings/api';
+                } else {
+                    errorMessage = `❌ Erro ao fazer login: ${error.message}`;
+                }
+                
+                showStatus('error', errorMessage, errorDetails);
+                
+            } finally {
+                // Reabilitar botão
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Fazer Login';
+            }
+        });
+        
+        // Verificar sessão ao carregar
+        checkSession();
+        
+        // Adicionar informações ao console
+        console.log('🚀 Teste de Login - Supabase');
+        console.log('📡 Projeto:', 'uygwwqhjhozyljuxcgkd');
+        console.log('🌐 URL:', SUPABASE_URL);
+        console.log('🔑 Senha pré-configurada: cecOYH09118');
+        console.log('');
+        console.log('Para obter a chave anon, acesse:');
+        console.log('https://supabase.com/dashboard/project/uygwwqhjhozyljuxcgkd/settings/api');
+    </script>
+</body>
+</html>
+
+
