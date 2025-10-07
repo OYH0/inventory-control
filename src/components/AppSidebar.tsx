@@ -1,6 +1,6 @@
 
 import React from "react"
-import { Home, Snowflake, Thermometer, Package2, FileText, LogOut, Settings, Wine, Bell, BarChart3, ShoppingCart } from "lucide-react"
+import { Home, Snowflake, Thermometer, Package2, FileText, LogOut, Settings, Wine, Bell, BarChart3, ShoppingCart, Shield } from "lucide-react"
 import { NavLink } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { useUserPermissions } from "@/hooks/useUserPermissions"
@@ -75,9 +75,17 @@ const adminItems = [
   },
 ]
 
+const masterItems = [
+  {
+    title: "Painel Master",
+    url: "/master-panel",
+    icon: Shield,
+  },
+]
+
 export function AppSidebar() {
   const { signOut, user } = useAuth();
-  const { isAdmin } = useUserPermissions();
+  const { isAdmin, isMasterAdmin } = useUserPermissions();
   const { setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
 
@@ -92,7 +100,11 @@ export function AppSidebar() {
     }
   };
 
-  const allItems = [...items, ...(isAdmin ? adminItems : [])];
+  const allItems = [
+    ...items, 
+    ...(isAdmin ? adminItems : []),
+    ...(isMasterAdmin ? masterItems : [])
+  ];
 
   return (
     <Sidebar className="border-0 w-full md:w-64">
