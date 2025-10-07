@@ -15,6 +15,7 @@ import { ABCDashboard } from '@/components/abc-analysis/ABCDashboard';
 import { OrdersDashboard } from '@/components/orders';
 import { OrderDetails } from '@/pages/OrderDetails';
 import { OrderEdit } from '@/pages/OrderEdit';
+import MasterPanel from '@/pages/MasterPanel';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { NavigationIndicator } from '@/components/NavigationIndicator';
 import { SwipeHint } from '@/components/SwipeHint';
@@ -138,6 +139,7 @@ const Index = () => {
                         <Route path="/pedidos/:orderId" element={<OrderDetails />} />
                         <Route path="/pedidos/:orderId/edit" element={<OrderEdit />} />
                         <Route path="/configuracoes" element={<UserManagement />} />
+                        <Route path="/master-panel" element={<MasterPanel />} />
                       </Routes>
                     </div>
                   </div>

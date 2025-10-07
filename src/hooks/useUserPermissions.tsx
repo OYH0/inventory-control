@@ -14,6 +14,7 @@ export interface UserProfile {
 export function useUserPermissions() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isMasterAdmin, setIsMasterAdmin] = useState(false);
   const [isGerente, setIsGerente] = useState(false);
   const [canModify, setCanModify] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,7 @@ export function useUserPermissions() {
     if (!user) {
       setUserProfile(null);
       setIsAdmin(false);
+      setIsMasterAdmin(false);
       setIsGerente(false);
       setCanModify(false);
       setLoading(false);
@@ -40,13 +42,16 @@ export function useUserPermissions() {
         console.error('Error fetching user profile:', error);
         setUserProfile(null);
         setIsAdmin(false);
+        setIsMasterAdmin(false);
         setIsGerente(false);
         setCanModify(false);
       } else if (data && data.length > 0) {
         // Take the first result if multiple exist
         const profile = data[0];
         setUserProfile(profile);
-        setIsAdmin(profile.user_type === 'admin');
+        const isUserAdmin = profile.user_type === 'admin';
+        setIsAdmin(isUserAdmin);
+        setIsMasterAdmin(isUserAdmin); // Master admin = admin user_type
         setIsGerente(profile.user_type === 'gerente');
         setCanModify(profile.user_type === 'admin' || profile.user_type === 'gerente');
       } else {
@@ -54,6 +59,7 @@ export function useUserPermissions() {
         console.warn('No user profile found for user:', user.id);
         setUserProfile(null);
         setIsAdmin(false);
+        setIsMasterAdmin(false);
         setIsGerente(false);
         setCanModify(false);
       }
@@ -61,6 +67,7 @@ export function useUserPermissions() {
       console.error('Error fetching user profile:', error);
       setUserProfile(null);
       setIsAdmin(false);
+      setIsMasterAdmin(false);
       setIsGerente(false);
       setCanModify(false);
     } finally {
@@ -105,6 +112,7 @@ export function useUserPermissions() {
   return {
     userProfile,
     isAdmin,
+    isMasterAdmin,
     isGerente,
     canModify,
     loading,
