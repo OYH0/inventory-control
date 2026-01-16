@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Shield, MapPin, RefreshCw, Bell } from 'lucide-react';
+import { Users, Shield, MapPin, RefreshCw, Bell, Building2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ExpiryAlertSettings } from '@/components/expiry-alerts/ExpiryAlertSettings';
+import { UnitPermissionsManager } from '@/components/UnitPermissionsManager';
 
 interface UserProfile {
   id: string;
@@ -184,14 +185,18 @@ export function UserManagement() {
     <AdminGuard>
       <div className="container mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="users">
               <Users className="h-4 w-4 mr-2" />
               Usuários
             </TabsTrigger>
+            <TabsTrigger value="units">
+              <Building2 className="h-4 w-4 mr-2" />
+              Unidades
+            </TabsTrigger>
             <TabsTrigger value="alerts">
               <Bell className="h-4 w-4 mr-2" />
-              Alertas de Vencimento
+              Alertas
             </TabsTrigger>
           </TabsList>
 
@@ -284,6 +289,10 @@ export function UserManagement() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="units" className="space-y-6">
+            <UnitPermissionsManager />
           </TabsContent>
 
           <TabsContent value="alerts" className="space-y-6">
