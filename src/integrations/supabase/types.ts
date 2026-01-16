@@ -1933,6 +1933,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_unit_permissions: {
+        Row: {
+          can_modify: boolean | null
+          can_view: boolean | null
+          created_at: string | null
+          id: string
+          unidade: Database["public"]["Enums"]["unidade"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          can_modify?: boolean | null
+          can_view?: boolean | null
+          created_at?: string | null
+          id?: string
+          unidade: Database["public"]["Enums"]["unidade"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          can_modify?: boolean | null
+          can_view?: boolean | null
+          created_at?: string | null
+          id?: string
+          unidade?: Database["public"]["Enums"]["unidade"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_unit_permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_all_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_unit_permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       abc_analysis_consolidated: {
@@ -2255,6 +2300,10 @@ export type Database = {
         }[]
       }
       generate_order_number: { Args: never; Returns: string }
+      get_user_accessible_units: {
+        Args: { p_user_id: string }
+        Returns: Database["public"]["Enums"]["unidade"][]
+      }
       get_user_organization_id: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       is_gerente: { Args: never; Returns: boolean }
@@ -2275,6 +2324,13 @@ export type Database = {
         Args: {
           p_org_id: string
           p_required_role: Database["public"]["Enums"]["organization_role"]
+        }
+        Returns: boolean
+      }
+      user_has_unit_access: {
+        Args: {
+          p_unidade: Database["public"]["Enums"]["unidade"]
+          p_user_id: string
         }
         Returns: boolean
       }
