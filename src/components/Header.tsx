@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { LogOut, User, Home, Snowflake, Thermometer, Package2, FileText, Settings, Wine } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnit } from '@/contexts/UnitContext';
+import { UnitSelector } from '@/components/UnitSelector';
 import { useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -54,6 +56,7 @@ const routeConfig = {
 
 export function Header() {
   const { user, signOut } = useAuth();
+  const { selectedUnit, accessibleUnits, setSelectedUnit, loading: unitLoading } = useUnit();
   const location = useLocation();
   const isMobile = useIsMobile();
   const currentRoute = routeConfig[location.pathname as keyof typeof routeConfig];
@@ -95,10 +98,19 @@ export function Header() {
         </div>
       )}
 
-      {/* Spacer for desktop to push user menu to the right */}
+      {/* Spacer for desktop to push controls to the right */}
       {!isMobile && <div className="flex-1" />}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        {/* Unit Selector */}
+        <UnitSelector
+          selectedUnit={selectedUnit}
+          accessibleUnits={accessibleUnits}
+          onUnitChange={setSelectedUnit}
+          loading={unitLoading}
+          showLabel={!isMobile}
+        />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
