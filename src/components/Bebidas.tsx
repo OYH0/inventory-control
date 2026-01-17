@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { useBebidas } from '@/hooks/useBebidas';
 import { useBebidasHistorico } from '@/hooks/useBebidasHistorico';
+import { useUnit } from '@/contexts/UnitContext';
 import { BebidasFilters } from '@/components/bebidas/BebidasFilters';
 import { BebidasItemCard } from '@/components/bebidas/BebidasItemCard';
 import { BebidasAddDialog } from '@/components/bebidas/BebidasAddDialog';
@@ -13,7 +14,6 @@ import { BebidasHeader } from '@/components/bebidas/BebidasHeader';
 
 import { QRCodeGenerator } from '@/components/qr-scanner/QRCodeGenerator';
 import { QRScanner } from '@/components/qr-scanner/QRScanner';
-import { UnidadeSelector } from '@/components/UnidadeSelector';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 import { generateInventoryPDF } from '@/utils/pdfGenerator';
@@ -34,8 +34,8 @@ export default function Bebidas() {
     lastAddedItem
   } = useBebidas();
   
-  const [selectedUnidade, setSelectedUnidade] = useState<'juazeiro_norte' | 'fortaleza' | 'todas'>('todas');
-  const { historico, addHistoricoItem } = useBebidasHistorico(selectedUnidade);
+  const { selectedUnit } = useUnit();
+  const { historico, addHistoricoItem } = useBebidasHistorico(selectedUnit || undefined);
   const { canModify } = useUserPermissions();
   
   const [newItem, setNewItem] = useState({
@@ -47,15 +47,10 @@ export default function Bebidas() {
     data_validade: '',
     batch_number: '',
     fornecedor: '',
-    unidade_item: selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade as 'juazeiro_norte' | 'fortaleza'
+    unidade_item: selectedUnit || 'juazeiro_norte' as 'juazeiro_norte' | 'fortaleza'
   });
   
   const [editingItems, setEditingItems] = useState<Record<string, number>>({});
-  
-  const itemsByUnidade = items.filter(item => {
-    if (selectedUnidade === 'todas') return true;
-    return item.unidade_item === selectedUnidade;
-  });
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('Todos');
@@ -96,13 +91,11 @@ export default function Bebidas() {
       });
       return;
     }
-
-    const unidadeParaItem = selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade;
     
     const itemWithUnidade = {
       ...newItem,
       quantidade: Number(newItem.quantidade),
-      unidade_item: unidadeParaItem
+      unidade_item: selectedUnit || 'juazeiro_norte'
     };
 
     try {
@@ -125,7 +118,7 @@ export default function Bebidas() {
           categoria: newItem.categoria,
           tipo: 'entrada',
           observacoes: 'Adição de novo item ao estoque',
-          unidade_item: unidadeParaItem
+          unidade_item: selectedUnit || 'juazeiro_norte'
         });
       }
       
@@ -138,7 +131,7 @@ export default function Bebidas() {
         data_validade: '',
         batch_number: '',
         fornecedor: '',
-        unidade_item: unidadeParaItem
+        unidade_item: selectedUnit || 'juazeiro_norte'
       });
       
       setIsAddDialogOpen(false);
@@ -297,7 +290,7 @@ export default function Bebidas() {
     }
   };
 
-  const filteredItems = itemsByUnidade.filter(item => {
+  const filteredItems = items.filter(item => {
     const matchesSearch = item.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.categoria.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'Todos' || item.categoria === filterCategory;
@@ -325,11 +318,6 @@ export default function Bebidas() {
 
   return (
     <div className="space-y-6 animate-enter">
-      <UnidadeSelector 
-        selectedUnidade={selectedUnidade}
-        onUnidadeChange={setSelectedUnidade}
-      />
-
       <BebidasHeader
         itemsCount={filteredItems.length}
         lowStockCount={lowStockItems.length}
@@ -343,7 +331,7 @@ export default function Bebidas() {
         onAddNewItem={handleAddNewItem}
         categorias={categories}
         items={filteredItems}
-        selectedUnidade={selectedUnidade}
+        selectedUnidade={selectedUnit || 'juazeiro_norte'}
       />
 
       <AdminGuard fallback={
@@ -394,7 +382,7 @@ export default function Bebidas() {
         {showAlerts && (
           <BebidasAlerts 
             lowStockItems={lowStockItems}
-            selectedUnidade={selectedUnidade}
+            selectedUnidade={selectedUnit || 'juazeiro_norte'}
           />
         )}
       </section>
