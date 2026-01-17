@@ -23,7 +23,8 @@ import type {
   ProductABCChange,
   InventoryMetrics,
   ProductMetrics,
-  ABCParetoDataPoint
+  ABCParetoDataPoint,
+  TrendDirection
 } from '@/types/abc-analysis';
 
 const TABLES_TO_ANALYZE = [
@@ -670,13 +671,13 @@ export class ABCAnalysisService {
     const total_value = products.reduce((sum, p) => sum + (p.annual_consumption_value || 0), 0);
     let cumulative_value = 0;
     
-    return products.map(p => {
+    return products.map((p: any) => {
       cumulative_value += p.annual_consumption_value || 0;
       const cumulative_percentage = total_value > 0 ? (cumulative_value / total_value) * 100 : 0;
       
       return {
-        product_name: p.product_name,
-        product_sku: p.product_sku || null,
+        product_name: p.product_name || p.nome || 'Sem nome',
+        product_sku: p.product_sku || p.sku || null,
         annual_value: p.annual_consumption_value || 0,
         cumulative_value,
         cumulative_percentage: Math.round(cumulative_percentage * 100) / 100,
@@ -721,10 +722,22 @@ export class ABCAnalysisService {
       throw new Error(`Erro ao buscar tendências: ${error.message}`);
     }
     
+    const mapToTrendItem = (item: any): ABCTrendItem => ({
+      product_id: item.product_id,
+      product_name: item.product_name,
+      product_sku: item.product_sku || null,
+      source_table: item.product_table || 'unknown',
+      previous_category: item.previous_category,
+      new_category: item.new_category,
+      value_change_percentage: item.value_change_percentage || 0,
+      trend_direction: item.trend_direction as TrendDirection,
+      changed_at: item.changed_at
+    });
+
     return {
-      upgrades: changes?.filter(c => c.trend_direction === 'upgrade') || [],
-      downgrades: changes?.filter(c => c.trend_direction === 'downgrade') || [],
-      new_entries: changes?.filter(c => c.trend_direction === 'new') || []
+      upgrades: (changes?.filter(c => c.trend_direction === 'upgrade') || []).map(mapToTrendItem),
+      downgrades: (changes?.filter(c => c.trend_direction === 'downgrade') || []).map(mapToTrendItem),
+      new_entries: (changes?.filter(c => c.trend_direction === 'new') || []).map(mapToTrendItem)
     };
   }
   
@@ -786,15 +799,16 @@ export class ABCAnalysisService {
       
       return values;
     } else {
-      // Buscar de uma tabela específica
+      // Buscar de uma tabela específica - usar any para evitar erro de tipo
+      const tableName = table_name as any;
       const { data } = await supabase
-        .from(table_name)
+        .from(tableName)
         .select('abc_category, annual_consumption_value')
         .eq('organization_id', org_id);
       
       const values = { A: 0, B: 0, C: 0, total: 0 };
       
-      data?.forEach(item => {
+      (data as any[])?.forEach(item => {
         const value = item.annual_consumption_value || 0;
         if (item.abc_category) {
           values[item.abc_category as ABCCategory] += value;

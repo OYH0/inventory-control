@@ -47,7 +47,17 @@ export default function CamaraFria() {
   const { canModify, canTransferItems } = useUserPermissions();
   
   // Estados para o formulário de adicionar item
-  const [newItem, setNewItem] = useState({
+  const [newItem, setNewItem] = useState<{
+    nome: string;
+    quantidade: number;
+    unidade: string;
+    categoria: string;
+    minimo: number;
+    unidade_item: 'juazeiro_norte' | 'fortaleza';
+    data_validade?: string;
+    fornecedor?: string;
+    batch_number?: string;
+  }>({
     nome: '',
     quantidade: 0,
     unidade: 'kg',

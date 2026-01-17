@@ -289,8 +289,8 @@ class ExpiryAlertService {
         critical_alerts: data?.critical_alerts || 0,
         high_alerts: data?.high_alerts || 0,
         expired_items: data?.expired_items || 0,
-        total_value_at_risk: parseFloat(data?.total_value_at_risk || '0'),
-        critical_value_at_risk: parseFloat(data?.critical_value_at_risk || '0'),
+        total_value_at_risk: parseFloat(String(data?.total_value_at_risk || '0')),
+        critical_value_at_risk: parseFloat(String(data?.critical_value_at_risk || '0')),
         pending_notifications: data?.pending_notifications || 0,
         alerts_today: data?.alerts_today || 0
       };
