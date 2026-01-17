@@ -68,27 +68,10 @@ export default function AuditLogs() {
         throw new Error('Acesso negado: apenas administradores');
       }
 
-      // Buscar logs (limitado aos últimos 500)
-      const { data, error } = await supabase
-        .from('organization_audit_log')
-        .select(`
-          *,
-          organizations!inner(name),
-          profiles!inner(email)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(500);
-
-      if (error) throw error;
-
-      // Formatar dados
-      const formattedLogs = data?.map(log => ({
-        ...log,
-        org_name: (log as any).organizations?.name || 'N/A',
-        user_email: (log as any).profiles?.email || 'N/A',
-      })) || [];
-
-      setLogs(formattedLogs);
+      // Note: organization_audit_log table doesn't exist yet
+      // For now, we'll show an empty state until the audit log table is created
+      setLogs([]);
+      toast.info('Tabela de auditoria ainda não foi implementada');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao carregar logs';
       toast.error(message);

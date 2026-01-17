@@ -198,7 +198,7 @@ export function ABCProductsTable() {
                       </TableCell>
                       <TableCell className="font-medium">
                         <div>
-                          <p>{product.product_name}</p>
+                          <p>{(product as any).product_name || product.nome}</p>
                           {product.source_table && (
                             <p className="text-xs text-muted-foreground">
                               {product.source_table.replace('_items', '').replace(/_/g, ' ')}
