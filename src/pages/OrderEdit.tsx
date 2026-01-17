@@ -56,8 +56,8 @@ export function OrderEdit() {
         order_date: order.order_date,
         expected_delivery_date: order.expected_delivery_date || '',
         supplier_customer_name: order.supplier_customer_name || '',
-        from_location: order.from_location || 'estoque_seco',
-        to_location: order.to_location || 'estoque_seco',
+        from_location: (order.from_location as 'juazeiro_norte' | 'fortaleza') || 'juazeiro_norte',
+        to_location: (order.to_location as 'juazeiro_norte' | 'fortaleza') || 'juazeiro_norte',
         notes: order.notes || '',
         items: (order.items || []).map(item => ({
           item_table: item.item_table,
