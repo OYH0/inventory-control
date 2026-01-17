@@ -88,18 +88,20 @@ export class OrdersService {
       + (input.shipping_cost || 0);
     
     // Criar pedido
+    const orderInsertData = {
+      organization_id: memberData.organization_id,
+      user_id: userData.user.id,
+      order_number: orderNumber,
+      ...orderData,
+      subtotal,
+      total_amount,
+      order_status: input.order_status || 'draft',
+      payment_status: input.payment_status || 'unpaid'
+    };
+    
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .insert({
-        organization_id: memberData.organization_id,
-        user_id: userData.user.id,
-        order_number: orderNumber,
-        ...orderData,
-        subtotal,
-        total_amount,
-        order_status: input.order_status || 'draft',
-        payment_status: input.payment_status || 'unpaid'
-      })
+      .insert(orderInsertData as any)
       .select()
       .single();
     
@@ -139,8 +141,8 @@ export class OrdersService {
     
     return {
       ...order,
-      items: createdItems
-    };
+      items: (createdItems || []) as OrderItem[]
+    } as unknown as OrderWithItems;
   }
   
   /**
@@ -177,9 +179,9 @@ export class OrdersService {
     
     return {
       ...order,
-      items: items || [],
-      status_history: history || []
-    };
+      items: (items || []) as OrderItem[],
+      status_history: (history || []) as OrderStatusHistory[]
+    } as unknown as OrderWithItems;
   }
   
   /**
@@ -258,7 +260,7 @@ export class OrdersService {
       throw new Error(`Erro ao listar pedidos: ${error.message}`);
     }
     
-    return data || [];
+    return (data || []) as unknown as Order[];
   }
   
   /**
@@ -267,7 +269,7 @@ export class OrdersService {
   static async updateOrder(orderId: string, input: UpdateOrderInput): Promise<Order> {
     const { data, error } = await supabase
       .from('orders')
-      .update(input)
+      .update(input as any)
       .eq('id', orderId)
       .select()
       .single();
@@ -276,7 +278,7 @@ export class OrdersService {
       throw new Error(`Erro ao atualizar pedido: ${error.message}`);
     }
     
-    return data;
+    return data as unknown as Order;
   }
   
   /**
@@ -337,7 +339,7 @@ export class OrdersService {
       throw new Error(`Erro ao aprovar pedido: ${error.message}`);
     }
     
-    return data;
+    return data as unknown as Order;
   }
   
   /**
@@ -369,7 +371,7 @@ export class OrdersService {
       throw new Error(`Erro ao cancelar pedido: ${error.message}`);
     }
     
-    return data;
+    return data as unknown as Order;
   }
   
   // ============================================
@@ -396,7 +398,7 @@ export class OrdersService {
       throw new Error(`Erro ao adicionar item: ${error.message}`);
     }
     
-    return data;
+    return data as unknown as OrderItem;
   }
   
   /**
@@ -417,7 +419,7 @@ export class OrdersService {
       throw new Error(`Erro ao atualizar item: ${error.message}`);
     }
     
-    return data;
+    return data as unknown as OrderItem;
   }
   
   /**
@@ -563,7 +565,7 @@ export class OrdersService {
       throw new Error(`Erro ao buscar pedidos recentes: ${error.message}`);
     }
     
-    return data || [];
+    return (data || []) as unknown as Order[];
   }
 }
 
