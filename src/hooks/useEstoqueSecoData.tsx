@@ -1,7 +1,8 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnit } from '@/contexts/UnitContext';
 import { toast } from '@/hooks/use-toast';
 import { useQRCodeGenerator } from '@/hooks/useQRCodeGenerator';
 
@@ -27,10 +28,11 @@ export function useEstoqueSecoData() {
   const [showQRGenerator, setShowQRGenerator] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<EstoqueSecoItem | null>(null);
   const { user } = useAuth();
+  const { selectedUnit } = useUnit();
   const { generateQRCodeData } = useQRCodeGenerator();
   const loggedRef = useRef(false);
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     if (!user) return;
     
     // Log apenas uma vez por sessão
@@ -40,10 +42,17 @@ export function useEstoqueSecoData() {
     }
     
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('estoque_seco_items')
         .select('*')
         .order('nome');
+
+      // Filtrar por unidade selecionada
+      if (selectedUnit) {
+        query = query.eq('unidade', selectedUnit);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       
@@ -64,10 +73,10 @@ export function useEstoqueSecoData() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, selectedUnit]);
 
   const addItem = async (newItem: Omit<EstoqueSecoItem, 'id'> & { unidade_item?: 'juazeiro_norte' | 'fortaleza' }) => {
-    if (!user) return;
+    if (!user || !selectedUnit) return;
 
     try {
       console.log('=== ADICIONANDO ITEM ESTOQUE SECO ===');
@@ -78,13 +87,13 @@ export function useEstoqueSecoData() {
         quantidade: Number(newItem.quantidade),
         categoria: newItem.categoria,
         minimo: newItem.minimo,
-        data_entrada: new Date().toISOString().split('T')[0], // Adicionar data de entrada automaticamente
+        data_entrada: new Date().toISOString().split('T')[0],
         data_validade: newItem.data_validade,
         preco_unitario: newItem.preco_unitario,
         fornecedor: newItem.fornecedor,
         observacoes: newItem.observacoes,
         user_id: user.id,
-        unidade: newItem.unidade_item || 'juazeiro_norte',
+        unidade: selectedUnit, // Usar a unidade selecionada do contexto
         // Campos ABC
         unit_cost: (newItem as any).unit_cost,
         annual_demand: (newItem as any).annual_demand,
@@ -225,8 +234,10 @@ export function useEstoqueSecoData() {
   };
 
   useEffect(() => {
-    fetchItems();
-  }, [user]);
+    if (user && selectedUnit) {
+      fetchItems();
+    }
+  }, [user, selectedUnit, fetchItems]);
 
   return {
     items,

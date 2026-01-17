@@ -6,6 +6,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { useEstoqueSecoData } from '@/hooks/useEstoqueSecoData';
 import { useEstoqueSecoHistorico } from '@/hooks/useEstoqueSecoHistorico';
+import { useUnit } from '@/contexts/UnitContext';
 import { EstoqueSecoFilters } from '@/components/estoque-seco/EstoqueSecoFilters';
 import { EstoqueSecoAlerts } from '@/components/estoque-seco/EstoqueSecoAlerts';
 import { EstoqueSecoHistoryDialog } from '@/components/estoque-seco/EstoqueSecoHistoryDialog';
@@ -16,17 +17,16 @@ import { QRCodeGenerator } from '@/components/qr-scanner/QRCodeGenerator';
 import { QRScanner } from '@/components/qr-scanner/QRScanner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { generateInventoryPDF } from '@/utils/pdfGenerator';
-import { UnidadeSelector } from '@/components/UnidadeSelector';
 import { AdminGuard } from '@/components/AdminGuard';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 export default function EstoqueSeco() {
   const { items, loading, addItem, updateItemQuantity, deleteItem, qrCodes, showQRGenerator, setShowQRGenerator, lastAddedItem, fetchItems } = useEstoqueSecoData();
   const { historico } = useEstoqueSecoHistorico();
+  const { selectedUnit } = useUnit();
   const { isAdmin } = useUserPermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('Todos');
-  const [selectedUnidade, setSelectedUnidade] = useState<'juazeiro_norte' | 'fortaleza' | 'todas'>('todas');
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -37,7 +37,7 @@ export default function EstoqueSeco() {
     unidade: '',
     categoria: '',
     minimo: 0,
-    unidade_item: selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade as 'juazeiro_norte' | 'fortaleza'
+    unidade_item: selectedUnit || 'juazeiro_norte' as 'juazeiro_norte' | 'fortaleza'
   });
   const isMobile = useIsMobile();
 
@@ -45,9 +45,7 @@ export default function EstoqueSeco() {
     const matchesSearch = item.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.categoria.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'Todos' || item.categoria === filterCategory;
-    const matchesUnidade = selectedUnidade === 'todas' || 
-                          (item as any).unidade === selectedUnidade;
-    return matchesSearch && matchesCategory && matchesUnidade;
+    return matchesSearch && matchesCategory;
   });
 
   const handleAddNewItem = async () => {
@@ -60,11 +58,11 @@ export default function EstoqueSeco() {
     
     const itemWithUnidade = {
       ...newItem,
-      unidade_item: selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade
+      unidade_item: selectedUnit || 'juazeiro_norte'
     };
     
     await addItem(itemWithUnidade);
-    setNewItem({ nome: '', quantidade: 0, unidade: '', categoria: '', minimo: 0, unidade_item: selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade as 'juazeiro_norte' | 'fortaleza' });
+    setNewItem({ nome: '', quantidade: 0, unidade: '', categoria: '', minimo: 0, unidade_item: selectedUnit || 'juazeiro_norte' as 'juazeiro_norte' | 'fortaleza' });
     setIsAddDialogOpen(false);
   };
 
@@ -90,9 +88,7 @@ export default function EstoqueSeco() {
 
   const handlePrintPDF = () => {
     try {
-      const unidadeText = selectedUnidade === 'todas' 
-        ? 'Todas as Unidades' 
-        : selectedUnidade === 'juazeiro_norte' 
+      const unidadeText = selectedUnit === 'juazeiro_norte' 
         ? 'Juazeiro do Norte' 
         : 'Fortaleza';
         
@@ -128,15 +124,8 @@ export default function EstoqueSeco() {
 
   return (
     <div className="space-y-6 animate-enter">
-      <div className={`flex flex-wrap gap-2 items-center ${isMobile ? 'justify-center' : ''}`}>
-        <UnidadeSelector 
-          selectedUnidade={selectedUnidade}
-          onUnidadeChange={setSelectedUnidade}
-        />
-      </div>
-
       <div className={`flex flex-wrap gap-2 ${isMobile ? 'justify-center' : ''}`}>
-        <Button 
+        <Button
           variant="outline" 
           size={isMobile ? "sm" : "default"}
           className="border-gray-300"
@@ -177,7 +166,7 @@ export default function EstoqueSeco() {
               onAddNewItem={handleAddNewItem}
               setDialogOpen={setIsAddDialogOpen}
               categorias={categories}
-              selectedUnidade={selectedUnidade}
+              selectedUnidade={selectedUnit || 'juazeiro_norte'}
             />
           </Dialog>
         </AdminGuard>
