@@ -36,7 +36,8 @@ export default function EstoqueSeco() {
     quantidade: 0,
     unidade: '',
     categoria: '',
-    minimo: 0
+    minimo: 0,
+    unidade_item: selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade as 'juazeiro_norte' | 'fortaleza'
   });
   const isMobile = useIsMobile();
 
@@ -63,7 +64,7 @@ export default function EstoqueSeco() {
     };
     
     await addItem(itemWithUnidade);
-    setNewItem({ nome: '', quantidade: 0, unidade: '', categoria: '', minimo: 0 });
+    setNewItem({ nome: '', quantidade: 0, unidade: '', categoria: '', minimo: 0, unidade_item: selectedUnidade === 'todas' ? 'juazeiro_norte' : selectedUnidade as 'juazeiro_norte' | 'fortaleza' });
     setIsAddDialogOpen(false);
   };
 

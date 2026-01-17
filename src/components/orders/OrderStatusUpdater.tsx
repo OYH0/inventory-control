@@ -42,7 +42,8 @@ const STATUS_FLOW: Record<OrderStatus, OrderStatus[]> = {
   processing: ['shipped', 'cancelled'],
   shipped: ['delivered', 'cancelled'],
   delivered: [],
-  cancelled: []
+  cancelled: [],
+  returned: []
 };
 
 const STATUS_ICONS: Record<OrderStatus, React.ElementType> = {
@@ -52,7 +53,8 @@ const STATUS_ICONS: Record<OrderStatus, React.ElementType> = {
   processing: Package,
   shipped: Truck,
   delivered: Home,
-  cancelled: XCircle
+  cancelled: XCircle,
+  returned: XCircle
 };
 
 const STATUS_DESCRIPTIONS: Record<OrderStatus, string> = {
@@ -62,7 +64,8 @@ const STATUS_DESCRIPTIONS: Record<OrderStatus, string> = {
   processing: 'Pedido em processamento',
   shipped: 'Pedido enviado, em trânsito',
   delivered: 'Pedido entregue com sucesso',
-  cancelled: 'Pedido cancelado'
+  cancelled: 'Pedido cancelado',
+  returned: 'Pedido devolvido'
 };
 
 export function OrderStatusUpdater({ order, onUpdateStatus, isUpdating }: OrderStatusUpdaterProps) {

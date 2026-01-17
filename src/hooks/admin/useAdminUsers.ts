@@ -6,8 +6,8 @@ export interface AdminUser {
   id: string;
   email: string;
   full_name: string;
-  user_type: 'admin' | 'user';
-  unidade_responsavel: string | null;
+  user_type: 'admin' | 'gerente' | 'viewer';
+  unidade_responsavel: 'juazeiro_norte' | 'fortaleza' | null;
   created_at: string;
   updated_at: string;
   org_count: number;
@@ -79,7 +79,7 @@ export function useAdminUsers() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ user_type: 'user' })
+        .update({ user_type: 'viewer' })
         .eq('id', userId);
 
       if (error) throw error;
