@@ -44,8 +44,8 @@ export function EditUserDialog({ user, onClose, onSuccess }: EditUserDialogProps
   const [availableOrgs, setAvailableOrgs] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     fullName: user.full_name,
-    unidadeResponsavel: user.unidade_responsavel,
-    userType: user.user_type
+    unidadeResponsavel: user.unidade_responsavel as 'juazeiro_norte' | 'fortaleza' | null,
+    userType: user.user_type as 'admin' | 'gerente' | 'viewer'
   });
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
@@ -302,14 +302,15 @@ export function EditUserDialog({ user, onClose, onSuccess }: EditUserDialogProps
                   <Label htmlFor="userType">Tipo de Usuário</Label>
                   <Select 
                     value={formData.userType} 
-                    onValueChange={(v: 'user' | 'admin') => setFormData(prev => ({ ...prev, userType: v }))}
+                    onValueChange={(v: 'admin' | 'gerente' | 'viewer') => setFormData(prev => ({ ...prev, userType: v }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="user">👤 Usuário Comum</SelectItem>
-                      <SelectItem value="admin">🛡️ Master Admin</SelectItem>
+                      <SelectItem value="viewer">👀 Visualizador</SelectItem>
+                      <SelectItem value="gerente">👔 Gerente</SelectItem>
+                      <SelectItem value="admin">🛡️ Administrador</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -135,6 +135,9 @@ export default function Bebidas() {
         unidade: 'un',
         categoria: '',
         minimo: 0,
+        data_validade: '',
+        batch_number: '',
+        fornecedor: '',
         unidade_item: unidadeParaItem
       });
       
