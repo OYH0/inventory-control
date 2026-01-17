@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnit } from '@/contexts/UnitContext';
 import { toast } from '@/hooks/use-toast';
 import { useQRCodeGenerator } from '@/hooks/useQRCodeGenerator';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,20 +22,18 @@ export interface BebidasItem {
   preco_unitario?: number;
 }
 
-export function useBebidas(selectedUnidade?: 'juazeiro_norte' | 'fortaleza' | 'todas') {
+export function useBebidas() {
   const [items, setItems] = useState<BebidasItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [qrCodes, setQrCodes] = useState<any[]>([]);
   const [showQRGenerator, setShowQRGenerator] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<BebidasItem | null>(null);
   const { user } = useAuth();
+  const { selectedUnit } = useUnit();
   const { generateQRCodeData } = useQRCodeGenerator();
   const mountedRef = useRef(true);
   const loggedRef = useRef(false);
   const pendingOperationRef = useRef(false);
-
-  const stableSelectedUnidade = useRef(selectedUnidade);
-  stableSelectedUnidade.current = selectedUnidade;
 
   const fetchItems = useCallback(async () => {
     if (!user || !mountedRef.current || pendingOperationRef.current) return;
@@ -53,9 +52,9 @@ export function useBebidas(selectedUnidade?: 'juazeiro_norte' | 'fortaleza' | 't
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Filtrar por unidade se especificado
-      if (selectedUnidade && selectedUnidade !== 'todas') {
-        query = query.eq('unidade_item', selectedUnidade);
+      // Filtrar por unidade selecionada (obrigatório)
+      if (selectedUnit) {
+        query = query.eq('unidade_item', selectedUnit);
       }
 
       const { data, error } = await query;
@@ -85,22 +84,21 @@ export function useBebidas(selectedUnidade?: 'juazeiro_norte' | 'fortaleza' | 't
         setLoading(false);
       }
     }
-  }, [user, selectedUnidade]);
+  }, [user, selectedUnit]);
 
   useEffect(() => {
-    if (user) {
+    if (user && selectedUnit) {
       fetchItems();
     } else {
       setLoading(false);
     }
-  }, [user, fetchItems]);
+  }, [user, selectedUnit, fetchItems]);
 
   useEffect(() => {
-    if (user && stableSelectedUnidade.current !== selectedUnidade) {
-      stableSelectedUnidade.current = selectedUnidade;
-      fetchItems();
-    }
-  }, [selectedUnidade, user, fetchItems]);
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -109,7 +107,7 @@ export function useBebidas(selectedUnidade?: 'juazeiro_norte' | 'fortaleza' | 't
   }, []);
 
   const addItem = async (newItem: Omit<BebidasItem, 'id'> & { unidade_item?: 'juazeiro_norte' | 'fortaleza' }) => {
-    if (!user || pendingOperationRef.current) return;
+    if (!user || pendingOperationRef.current || !selectedUnit) return;
 
     pendingOperationRef.current = true;
 
@@ -137,7 +135,7 @@ export function useBebidas(selectedUnidade?: 'juazeiro_norte' | 'fortaleza' | 't
         temperatura_ideal: newItem.temperatura_ideal || null,
         fornecedor: newItem.fornecedor?.trim() || null,
         observacoes: newItem.observacoes?.trim() || null,
-        unidade_item: newItem.unidade_item || 'juazeiro_norte',
+        unidade_item: selectedUnit, // Usar a unidade selecionada do contexto
         minimo: newItem.minimo || 10,
         preco_unitario: newItem.preco_unitario || null,
         // Campos ABC
