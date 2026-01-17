@@ -347,7 +347,7 @@ export function OrderDetails() {
               <div className="mt-4 space-y-2 border-t pt-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>{formatCurrency(order.subtotal_amount)}</span>
+                  <span>{formatCurrency(order.subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Desconto Total</span>
@@ -390,13 +390,13 @@ export function OrderDetails() {
                         )}
                       </div>
                       <div className="flex-1 pb-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <OrderStatusBadge status={history.status} />
-                          <span className="text-xs text-muted-foreground">
-                            {formatDateTime(history.created_at)}
-                          </span>
-                        </div>
-                        {history.notes && (
+                      <div className="flex items-center gap-2 mb-1">
+                        <OrderStatusBadge status={history.new_status} />
+                        <span className="text-xs text-muted-foreground">
+                          {formatDateTime(history.created_at)}
+                        </span>
+                      </div>
+                      {history.notes && (
                           <p className="text-sm text-muted-foreground mt-2">
                             {history.notes}
                           </p>

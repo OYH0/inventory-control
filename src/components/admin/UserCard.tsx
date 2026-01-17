@@ -8,9 +8,10 @@ interface UserProfile {
   id: string;
   email: string;
   full_name: string;
-  user_type: 'admin' | 'user';
-  unidade_responsavel: string | null;
+  user_type: 'admin' | 'gerente' | 'viewer';
+  unidade_responsavel: 'juazeiro_norte' | 'fortaleza' | null;
   created_at: string;
+  updated_at?: string;
   org_count: number;
 }
 

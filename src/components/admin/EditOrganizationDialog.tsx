@@ -13,8 +13,12 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { AdminOrganization } from '@/hooks/admin/useAdminOrganizations';
 
+interface AdminOrganizationExtended extends AdminOrganization {
+  primary_color?: string | null;
+}
+
 interface EditOrganizationDialogProps {
-  organization: AdminOrganization;
+  organization: AdminOrganizationExtended;
   onClose: () => void;
   onSuccess: () => void;
 }

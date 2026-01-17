@@ -26,7 +26,7 @@ export function ExpiryAlertStats({ stats, isLoading }: ExpiryAlertStatsProps) {
     );
   }
 
-  const totalAlerts = (stats?.critical_alerts || 0) + (stats?.high_alerts || 0) + (stats?.medium_alerts || 0);
+  const totalAlerts = (stats?.critical_alerts || 0) + (stats?.high_alerts || 0);
 
   return (
     <div className="grid gap-4 md:grid-cols-3">

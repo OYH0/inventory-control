@@ -144,7 +144,10 @@ export default function CamaraFria() {
         unidade: 'kg',
         categoria: '',
         minimo: 0,
-        unidade_item: unidadeParaItem
+        unidade_item: unidadeParaItem,
+        data_validade: '',
+        fornecedor: '',
+        batch_number: ''
       });
       
       setIsAddDialogOpen(false);

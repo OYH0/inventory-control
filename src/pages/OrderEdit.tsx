@@ -40,8 +40,8 @@ export function OrderEdit() {
     order_date: new Date().toISOString().split('T')[0],
     expected_delivery_date: '',
     supplier_customer_name: '',
-    from_location: 'estoque_seco' as LocationType,
-    to_location: 'estoque_seco' as LocationType,
+    from_location: 'juazeiro_norte' as LocationType,
+    to_location: 'juazeiro_norte' as LocationType,
     notes: '',
     items: [] as CreateOrderItemInput[]
   });

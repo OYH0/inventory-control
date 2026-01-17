@@ -68,8 +68,27 @@ export function useABCProducts(options: UseABCProductsOptions = {}) {
       
       if (error) throw error;
       
+      // Map the view data to ProductABCData interface
+      const mappedData: ProductABCData[] = (data || []).map((item: any) => ({
+        id: item.id,
+        nome: item.product_name || '',
+        unit_cost: item.unit_cost || 0,
+        annual_demand: item.annual_demand || 0,
+        annual_consumption_value: item.annual_consumption_value || 0,
+        abc_category: item.abc_category,
+        abc_classification_date: item.abc_classification_date,
+        carrying_cost_percentage: item.carrying_cost_percentage || 0,
+        ordering_cost: item.ordering_cost || 0,
+        lead_time_days: item.lead_time_days || 0,
+        eoq: item.eoq,
+        reorder_point: item.reorder_point,
+        safety_stock: item.safety_stock,
+        organization_id: item.organization_id || '',
+        source_table: item.source_table
+      }));
+      
       return {
-        data: data as ProductABCData[],
+        data: mappedData,
         total: count || 0,
         page,
         pageSize,
