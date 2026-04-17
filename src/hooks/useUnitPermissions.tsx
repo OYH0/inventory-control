@@ -47,12 +47,16 @@ export function useUnitPermissions(): UseUnitPermissionsReturn {
 
     try {
       // First check if user is admin
-      const { data: profileData } = await supabase
+      const { data: profileRows, error: profileError } = await supabase
         .from('profiles')
         .select('user_type')
-        .eq('id', user.id)
-        .single();
+        .eq('id', user.id);
 
+      if (profileError) {
+        throw profileError;
+      }
+
+      const profileData = profileRows?.[0] ?? null;
       const userIsAdmin = profileData?.user_type === 'admin';
       setIsAdmin(userIsAdmin);
 

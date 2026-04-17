@@ -70,13 +70,12 @@ export function useDescartaveisData() {
     if (!user) return;
 
     try {
+      const { unidade_item, ...restNewItem } = newItem;
       const itemToInsert = {
-        ...newItem,
+        ...restNewItem,
         user_id: user.id,
-        unidade: newItem.unidade_item || 'juazeiro_norte'
+        unidade: unidade_item || 'juazeiro_norte'
       };
-      
-      delete (itemToInsert as any).unidade_item;
 
       const { data, error } = await supabase
         .from('descartaveis_items')
