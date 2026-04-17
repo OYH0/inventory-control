@@ -65,7 +65,7 @@ export function useAdminOrganizations() {
 
   const updateOrganization = async (
     id: string,
-    updates: Pick<AdminOrganization, 'name' | 'slug' | 'is_active' | 'subscription_tier' | 'max_users' | 'deleted_at' | 'owner_id'>
+    updates: Partial<Pick<AdminOrganization, 'name' | 'slug' | 'is_active' | 'subscription_tier' | 'max_users' | 'deleted_at' | 'owner_id'>>
   ) => {
     try {
       const { error } = await supabase
