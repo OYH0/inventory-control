@@ -21,93 +21,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    let mounted = true;
-    let refreshTimeout: NodeJS.Timeout | null = null;
-
-    // Get initial session
-    const getInitialSession = async () => {
-      if (!mounted || initialized) return;
-      
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.warn('Session check error:', error);
-          if (mounted) {
-            setSession(null);
-            setUser(null);
-            setLoading(false);
-            setInitialized(true);
-          }
-          return;
-        }
-        
-        if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-          setLoading(false);
-          setInitialized(true);
-        }
-      } catch (error) {
-        console.warn('Session initialization failed:', error);
-        if (mounted) {
-          setSession(null);
-          setUser(null);
-          setLoading(false);
-          setInitialized(true);
-        }
-      }
-    };
-
-    getInitialSession();
-
-    // Auth state listener - throttled to prevent excessive requests
+    // Set up auth state listener FIRST (synchronous)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (!mounted || !initialized) return;
-        
         console.log('Auth event:', event);
-        
-        // Clear any pending refresh timeout
-        if (refreshTimeout) {
-          clearTimeout(refreshTimeout);
-          refreshTimeout = null;
-        }
-        
-        // Handle critical auth events only
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-          setSession(session);
-          setUser(session?.user ?? null);
-        }
-        
-        // Throttle TOKEN_REFRESHED events to prevent loops
-        if (event === 'TOKEN_REFRESHED') {
-          console.log('Token refreshed silently');
-          // Only update session if it's different
-          if (session && session.access_token !== session?.access_token) {
-            refreshTimeout = setTimeout(() => {
-              if (mounted) {
-                setSession(session);
-                setUser(session?.user ?? null);
-              }
-            }, 1000); // 1 second throttle
-          }
-        }
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
       }
     );
 
-    return () => {
-      mounted = false;
-      if (refreshTimeout) {
-        clearTimeout(refreshTimeout);
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.warn('Session check error:', error);
       }
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => {
       subscription.unsubscribe();
     };
-  }, [initialized]);
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
