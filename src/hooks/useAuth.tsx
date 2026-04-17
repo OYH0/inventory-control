@@ -1,5 +1,5 @@
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext, useContext, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -21,30 +21,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasAuthEventRef = useRef(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener FIRST (synchronous)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth event:', event);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    let mounted = true;
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (!mounted) return;
+
+      hasAuthEventRef.current = true;
+      console.log('Auth event:', event);
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      setLoading(false);
+    });
+
+    supabase.auth.getSession().then(({ data: { session: initialSession }, error }) => {
+      if (!mounted || hasAuthEventRef.current) return;
+
       if (error) {
         console.warn('Session check error:', error);
+        setLoading(false);
+        return;
       }
-      setSession(session);
-      setUser(session?.user ?? null);
+
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
       setLoading(false);
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -80,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error };
       }
       
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: sanitizedEmail,
         password,
       });
@@ -105,9 +113,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
         }
       } else {
+        setSession(data.session ?? null);
+        setUser(data.user ?? null);
+
         logInfo('User signed in successfully', {
           action: 'sign_in',
-          userId: user?.id,
+          userId: data.user?.id,
           metadata: { email: sanitizedEmail }
         });
         toast({
