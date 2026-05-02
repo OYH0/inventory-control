@@ -14,7 +14,7 @@ import { CamaraFriaHeader } from '@/components/camara-fria/CamaraFriaHeader';
 
 import { QRCodeGenerator } from '@/components/qr-scanner/QRCodeGenerator';
 import { QRScanner } from '@/components/qr-scanner/QRScanner';
-import { UnidadeSelector } from '@/components/UnidadeSelector';
+import { useUnit } from '@/contexts/UnitContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 import { generateInventoryPDF } from '@/utils/pdfGenerator';
@@ -24,21 +24,23 @@ import { AdminGuard } from '@/components/AdminGuard';
 import { toast } from '@/hooks/use-toast';
 
 export default function CamaraFria() {
-  const { 
-    items, 
-    loading, 
-    addItem, 
-    updateItemQuantity, 
-    deleteItem, 
+  const { selectedUnit } = useUnit();
+  // selectedUnit do contexto: Unidade | null (null = todas).
+  // Os hooks aceitam 'todas' literal — convertemos null aqui.
+  const selectedUnidade: 'juazeiro_norte' | 'fortaleza' | 'todas' = selectedUnit ?? 'todas';
+
+  const {
+    items,
+    loading,
+    addItem,
+    updateItemQuantity,
+    deleteItem,
     transferItemsToUnidade,
     qrCodes,
     showQRGenerator,
     setShowQRGenerator,
     lastAddedItem
-  } = useCamaraFriaData();
-  
-  // Estado para unidade selecionada
-  const [selectedUnidade, setSelectedUnidade] = useState<'juazeiro_norte' | 'fortaleza' | 'todas'>('todas');
+  } = useCamaraFriaData(selectedUnidade);
   
   // Passar selectedUnidade para o hook de histórico
   const { historico, addHistoricoItem } = useCamaraFriaHistorico(selectedUnidade);
@@ -443,11 +445,6 @@ export default function CamaraFria() {
 
   return (
     <div className="space-y-6 animate-enter">
-      <UnidadeSelector 
-        selectedUnidade={selectedUnidade}
-        onUnidadeChange={setSelectedUnidade}
-      />
-
       <CamaraFriaHeader
         itemsCount={filteredItems.length}
         lowStockCount={lowStockItems.length}

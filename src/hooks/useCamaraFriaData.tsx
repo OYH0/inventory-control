@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnit } from '@/contexts/UnitContext';
 import { toast } from '@/hooks/use-toast';
 import { useQRCodeGenerator } from '@/hooks/useQRCodeGenerator';
 
@@ -29,33 +30,38 @@ export function useCamaraFriaData(selectedUnidade?: 'juazeiro_norte' | 'fortalez
   const [showQRGenerator, setShowQRGenerator] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<CamaraFriaItem | null>(null);
   const { user } = useAuth();
+  const { accessibleUnits } = useUnit();
   const { generateQRCodeData } = useQRCodeGenerator();
   const mountedRef = useRef(true);
   const loggedRef = useRef(false);
   const pendingOperationRef = useRef(false);
 
-  // Create a stable reference for the selected unit
-  const stableSelectedUnidade = useRef(selectedUnidade);
-  stableSelectedUnidade.current = selectedUnidade;
-
   const fetchItems = useCallback(async () => {
     if (!user || !mountedRef.current || pendingOperationRef.current) return;
-    
-    // Log apenas uma vez por sessão
+
     if (!loggedRef.current) {
       console.log('=== FETCH INICIAL DA CÂMARA FRIA ===');
       loggedRef.current = true;
     }
-    
+
+    if (accessibleUnits.length === 0) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       let query = supabase
         .from('camara_fria_items')
         .select('*')
         .order('nome');
 
-      // Aplicar filtro por unidade se não for "todas"
-      if (stableSelectedUnidade.current && stableSelectedUnidade.current !== 'todas') {
-        query = query.eq('unidade', stableSelectedUnidade.current);
+      // Defesa em profundidade: sempre restringe ao accessibleUnits do usuário.
+      // Se houver unidade específica selecionada e ela for permitida, usa-a; senão usa todas as permitidas.
+      if (selectedUnidade && selectedUnidade !== 'todas' && accessibleUnits.includes(selectedUnidade)) {
+        query = query.eq('unidade', selectedUnidade);
+      } else {
+        query = query.in('unidade', accessibleUnits);
       }
 
       const { data, error } = await query;
@@ -98,9 +104,8 @@ export function useCamaraFriaData(selectedUnidade?: 'juazeiro_norte' | 'fortalez
         setLoading(false);
       }
     }
-  }, [user]);
+  }, [user, selectedUnidade, accessibleUnits]);
 
-  // Effect for initial load and user changes
   useEffect(() => {
     if (user) {
       fetchItems();
@@ -108,14 +113,6 @@ export function useCamaraFriaData(selectedUnidade?: 'juazeiro_norte' | 'fortalez
       setLoading(false);
     }
   }, [user, fetchItems]);
-
-  // Effect for unit changes
-  useEffect(() => {
-    if (user && stableSelectedUnidade.current !== selectedUnidade) {
-      stableSelectedUnidade.current = selectedUnidade;
-      fetchItems();
-    }
-  }, [selectedUnidade, user, fetchItems]);
 
   // Cleanup effect
   useEffect(() => {
@@ -142,19 +139,29 @@ export function useCamaraFriaData(selectedUnidade?: 'juazeiro_norte' | 'fortalez
         throw new Error('Quantidade não pode ser negativa');
       }
 
+      const unidadeProposta = newItem.unidade_item;
+      const unidadeAlvo =
+        unidadeProposta && accessibleUnits.includes(unidadeProposta)
+          ? unidadeProposta
+          : accessibleUnits[0];
+
+      if (!unidadeAlvo) {
+        throw new Error('Sem unidade acessível para inserir item');
+      }
+
       const itemToInsert = {
         nome: newItem.nome.trim(),
         quantidade: Number(newItem.quantidade),
         categoria: newItem.categoria,
         minimo: newItem.minimo || 5,
-        data_entrada: new Date().toISOString().split('T')[0], // Adicionar data de entrada automaticamente
+        data_entrada: new Date().toISOString().split('T')[0],
         data_validade: newItem.data_validade,
         temperatura_ideal: newItem.temperatura_ideal,
         fornecedor: newItem.fornecedor?.trim() || null,
         observacoes: newItem.observacoes?.trim() || null,
         preco_unitario: newItem.preco_unitario,
         user_id: user.id,
-        unidade: newItem.unidade_item || 'juazeiro_norte',
+        unidade: unidadeAlvo,
         // Campos ABC
         unit_cost: (newItem as any).unit_cost || null,
         annual_demand: (newItem as any).annual_demand || null,
@@ -336,16 +343,23 @@ export function useCamaraFriaData(selectedUnidade?: 'juazeiro_norte' | 'fortalez
     pendingOperationRef.current = true;
 
     try {
-      // Preparar os dados para adicionar na câmara refrigerada
+      const unidadeAlvo =
+        item.unidade_item && accessibleUnits.includes(item.unidade_item)
+          ? item.unidade_item
+          : accessibleUnits[0];
+
+      if (!unidadeAlvo) {
+        throw new Error('Sem unidade acessível para transferir item');
+      }
+
       const newItem = {
         nome: item.nome,
         quantidade: item.quantidade,
-        unidade: item.unidade_item || 'juazeiro_norte',
+        unidade: unidadeAlvo,
         categoria: item.categoria,
         user_id: user.id
       };
 
-      // Usar transação para garantir consistência
       const { error: insertError } = await supabase
         .from('camara_refrigerada_items')
         .insert([newItem]);
@@ -377,26 +391,40 @@ export function useCamaraFriaData(selectedUnidade?: 'juazeiro_norte' | 'fortalez
     pendingOperationRef.current = true;
 
     try {
-      const { error } = await supabase
+      // .select() força o retorno das linhas atualizadas. Sem isso, RLS pode
+      // bloquear silenciosamente (zero rows) e o toast mente "sucesso".
+      const { data, error } = await supabase
         .from('camara_fria_items')
-        .update({ 
+        .update({
           unidade: targetUnidade,
           updated_at: new Date().toISOString()
         })
-        .in('id', itemIds);
+        .in('id', itemIds)
+        .select('id');
 
       if (error) throw error;
 
+      const updated = data?.length ?? 0;
+      if (updated === 0) {
+        throw new Error('Nenhum item foi transferido. Verifique suas permissões na unidade de destino.');
+      }
+      if (updated < itemIds.length) {
+        throw new Error(`Só ${updated} de ${itemIds.length} itens foram transferidos. RLS pode estar bloqueando os demais.`);
+      }
+
       // Atualizar o estado local
-      setItems(prev => prev.map(item => 
-        itemIds.includes(item.id) 
+      setItems(prev => prev.map(item =>
+        itemIds.includes(item.id)
           ? { ...item, unidade_item: targetUnidade }
           : item
       ));
 
+      // Refetch para refletir possível remoção do filtro server-side.
+      void fetchItems();
+
       toast({
         title: "Transferência realizada",
-        description: `${itemIds.length} itens foram transferidos para ${targetUnidade === 'juazeiro_norte' ? 'Juazeiro do Norte' : 'Fortaleza'}.`,
+        description: `${updated} item(ns) transferido(s) para ${targetUnidade === 'juazeiro_norte' ? 'Juazeiro do Norte' : 'Fortaleza'}.`,
       });
     } catch (error) {
       console.error('Error transferring items:', error);

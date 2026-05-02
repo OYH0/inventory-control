@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Building2 } from 'lucide-react';
+import { MapPin, Building2, Globe2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -14,11 +14,13 @@ import type { Unidade } from '@/hooks/useUnitPermissions';
 interface UnitSelectorProps {
   selectedUnit: Unidade | null;
   accessibleUnits: Unidade[];
-  onUnitChange: (unit: Unidade) => void;
+  onUnitChange: (unit: Unidade | null) => void;
   loading?: boolean;
   className?: string;
   showLabel?: boolean;
 }
+
+const ALL_VALUE = '__all__';
 
 const unitLabels: Record<Unidade, string> = {
   juazeiro_norte: 'Juazeiro do Norte',
@@ -50,7 +52,7 @@ export function UnitSelector({
     return (
       <Badge variant="destructive" className={className}>
         <MapPin className="h-3 w-3 mr-1" />
-        Sem acesso a unidades
+        Sem acesso
       </Badge>
     );
   }
@@ -65,6 +67,8 @@ export function UnitSelector({
     );
   }
 
+  const currentValue = selectedUnit ?? ALL_VALUE;
+
   return (
     <div className={cn('flex items-center gap-2', className)}>
       {showLabel && (
@@ -73,20 +77,31 @@ export function UnitSelector({
         </span>
       )}
       <Select
-        value={selectedUnit || undefined}
-        onValueChange={(value) => onUnitChange(value as Unidade)}
+        value={currentValue}
+        onValueChange={(value) => onUnitChange(value === ALL_VALUE ? null : (value as Unidade))}
       >
-        <SelectTrigger className="w-[180px] h-9">
-          <SelectValue placeholder="Selecione a unidade">
-            {selectedUnit && (
+        <SelectTrigger className="w-[200px] h-9">
+          <SelectValue>
+            {selectedUnit ? (
               <div className="flex items-center gap-2">
                 <span>{unitIcons[selectedUnit]}</span>
-                <span>{unitLabels[selectedUnit]}</span>
+                <span className="truncate">{unitLabels[selectedUnit]}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Globe2 className="h-4 w-4" />
+                <span>Todas as Unidades</span>
               </div>
             )}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value={ALL_VALUE}>
+            <div className="flex items-center gap-2">
+              <Globe2 className="h-4 w-4" />
+              <span>Todas as Unidades</span>
+            </div>
+          </SelectItem>
           {accessibleUnits.map((unit) => (
             <SelectItem key={unit} value={unit}>
               <div className="flex items-center gap-2">

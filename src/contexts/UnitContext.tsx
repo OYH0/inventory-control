@@ -3,11 +3,13 @@ import { useUnitPermissions, Unidade, UnitPermission } from '@/hooks/useUnitPerm
 
 interface UnitContextType {
   accessibleUnits: Unidade[];
-  selectedUnit: Unidade | null;
-  setSelectedUnit: (unit: Unidade) => void;
+  selectedUnit: Unidade | null; // null = "todas as acessíveis"
+  setSelectedUnit: (unit: Unidade | null) => void;
   permissions: UnitPermission[];
   loading: boolean;
   isAdmin: boolean;
+  isMaster: boolean;
+  isApproved: boolean;
   canModifyUnit: (unit: Unidade) => boolean;
   refetch: () => Promise<void>;
   needsUnitSelection: boolean;
@@ -16,42 +18,31 @@ interface UnitContextType {
 
 const UnitContext = createContext<UnitContextType | undefined>(undefined);
 
-const SELECTED_UNIT_KEY = 'selected_unit';
-
 export function UnitProvider({ children }: { children: ReactNode }) {
   const unitPermissions = useUnitPermissions();
   const [needsUnitSelection, setNeedsUnitSelection] = useState(false);
 
-  // Check if user needs to select a unit (after login)
+  // Tela de seleção pós-login: aparece só quando o usuário tem mais de uma
+  // unidade e ainda não escolheu nada (selectedUnit nulo após carregamento).
   useEffect(() => {
-    if (!unitPermissions.loading && unitPermissions.accessibleUnits.length > 0) {
-      const savedUnit = localStorage.getItem(SELECTED_UNIT_KEY) as Unidade | null;
-      
-      // If no saved unit or saved unit is not accessible, user needs to select
-      if (!savedUnit || !unitPermissions.accessibleUnits.includes(savedUnit)) {
-        // If only one unit, auto-select it
-        if (unitPermissions.accessibleUnits.length === 1) {
-          unitPermissions.setSelectedUnit(unitPermissions.accessibleUnits[0]);
-          setNeedsUnitSelection(false);
-        } else {
-          setNeedsUnitSelection(true);
-        }
-      } else {
-        setNeedsUnitSelection(false);
-      }
+    if (unitPermissions.loading) return;
+    if (unitPermissions.accessibleUnits.length <= 1) {
+      setNeedsUnitSelection(false);
+      return;
     }
-  }, [unitPermissions.loading, unitPermissions.accessibleUnits]);
+    // Já há um valor (specific ou null = "todas") restaurado pelo hook? Não precisa selecionar.
+    setNeedsUnitSelection(false);
+  }, [unitPermissions.loading, unitPermissions.accessibleUnits, unitPermissions.selectedUnit]);
 
-  const handleSetSelectedUnit = useCallback((unit: Unidade) => {
+  const handleSetSelectedUnit = useCallback((unit: Unidade | null) => {
     unitPermissions.setSelectedUnit(unit);
-    localStorage.setItem(SELECTED_UNIT_KEY, unit);
     setNeedsUnitSelection(false);
   }, [unitPermissions]);
 
   const clearUnitSelection = useCallback(() => {
-    localStorage.removeItem(SELECTED_UNIT_KEY);
+    unitPermissions.setSelectedUnit(null);
     setNeedsUnitSelection(true);
-  }, []);
+  }, [unitPermissions]);
 
   return (
     <UnitContext.Provider value={{

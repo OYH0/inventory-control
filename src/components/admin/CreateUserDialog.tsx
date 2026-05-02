@@ -24,7 +24,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
     fullName: '',
     password: '',
     userType: 'user' as 'user' | 'admin',
-    unidadeResponsavel: 'juazeiro_norte' as 'juazeiro_norte' | 'fortaleza',
+    unidadeResponsavel: 'juazeiro_norte' as 'juazeiro_norte' | 'fortaleza' | 'todas',
     organizationId: '',
     organizationRole: 'member' as OrganizationRole,
     sendWelcomeEmail: true
@@ -93,7 +93,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
           email: formData.email,
           full_name: formData.fullName,
           user_type: formData.userType,
-          unidade_responsavel: formData.unidadeResponsavel
+          unidade_responsavel: formData.unidadeResponsavel === 'todas' ? null : formData.unidadeResponsavel
         });
 
       if (profileError) throw profileError;
@@ -231,6 +231,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
                   <SelectContent>
                     <SelectItem value="juazeiro_norte">Juazeiro do Norte</SelectItem>
                     <SelectItem value="fortaleza">Fortaleza</SelectItem>
+                    <SelectItem value="todas">Todas as Unidades (super-admin)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

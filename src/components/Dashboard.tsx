@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, Area, AreaChart } from 'recharts';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useUnit } from '@/contexts/UnitContext';
 import { useCamaraFriaData } from '@/hooks/useCamaraFriaData';
 import { useCamaraFriaHistorico } from '@/hooks/useCamaraFriaHistorico';
 import { useEstoqueSecoData } from '@/hooks/useEstoqueSecoData';
@@ -30,12 +31,16 @@ const CHART_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#e
 
 export function Dashboard() {
   const isMobile = useIsMobile();
-  const { items: camaraFriaItems } = useCamaraFriaData();
-  const { historico: camaraFriaHistorico } = useCamaraFriaHistorico();
+  const { selectedUnit } = useUnit();
+  // Dashboard respeita o seletor global. null = todas as acessíveis.
+  const filtro: 'juazeiro_norte' | 'fortaleza' | 'todas' = selectedUnit ?? 'todas';
+
+  const { items: camaraFriaItems } = useCamaraFriaData(filtro);
+  const { historico: camaraFriaHistorico } = useCamaraFriaHistorico(filtro);
   const { items: estoqueSecoItems } = useEstoqueSecoData();
-  const { items: descartaveisItems } = useDescartaveisData();
+  const { items: descartaveisItems } = useDescartaveisData(filtro);
   const { items: bebidasItems } = useBebidas();
-  const { items: camaraRefrigeradaItems } = useCamaraRefrigeradaData();
+  const { items: camaraRefrigeradaItems } = useCamaraRefrigeradaData(filtro);
 
   // Estatísticas gerais
   const stats = useMemo(() => {

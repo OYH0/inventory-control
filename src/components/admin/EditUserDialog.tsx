@@ -284,9 +284,14 @@ export function EditUserDialog({ user, onClose, onSuccess }: EditUserDialogProps
 
                 <div className="space-y-2">
                   <Label htmlFor="unidadeResponsavel">Unidade Responsável</Label>
-                  <Select 
-                    value={formData.unidadeResponsavel || ''} 
-                    onValueChange={(v) => setFormData(prev => ({ ...prev, unidadeResponsavel: v as any }))}
+                  <Select
+                    value={formData.unidadeResponsavel ?? 'todas'}
+                    onValueChange={(v) =>
+                      setFormData(prev => ({
+                        ...prev,
+                        unidadeResponsavel: v === 'todas' ? null : (v as 'juazeiro_norte' | 'fortaleza'),
+                      }))
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -294,6 +299,7 @@ export function EditUserDialog({ user, onClose, onSuccess }: EditUserDialogProps
                     <SelectContent>
                       <SelectItem value="juazeiro_norte">Juazeiro do Norte</SelectItem>
                       <SelectItem value="fortaleza">Fortaleza</SelectItem>
+                      <SelectItem value="todas">Todas as Unidades (super-admin)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

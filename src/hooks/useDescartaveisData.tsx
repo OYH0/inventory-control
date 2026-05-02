@@ -1,7 +1,8 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnit } from '@/contexts/UnitContext';
 import { toast } from '@/hooks/use-toast';
 import { useQRCodeGenerator } from '@/hooks/useQRCodeGenerator';
 import { useDescartaveisHistorico } from '@/hooks/useDescartaveisHistorico';
@@ -20,39 +21,54 @@ export interface DescartaveisItem {
   unidade_item?: 'juazeiro_norte' | 'fortaleza';
 }
 
-export function useDescartaveisData() {
+export function useDescartaveisData(selectedUnidade?: 'juazeiro_norte' | 'fortaleza' | 'todas') {
   const [items, setItems] = useState<DescartaveisItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [qrCodes, setQrCodes] = useState<any[]>([]);
   const [showQRGenerator, setShowQRGenerator] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<DescartaveisItem | null>(null);
   const { user } = useAuth();
+  const { accessibleUnits } = useUnit();
   const { generateQRCodeData } = useQRCodeGenerator();
   const { addHistoricoItem } = useDescartaveisHistorico();
   const loggedRef = useRef(false);
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     if (!user) return;
-    
-    // Log apenas uma vez por sessão
+
     if (!loggedRef.current) {
       console.log('=== FETCH INICIAL DOS DESCARTÁVEIS ===');
       loggedRef.current = true;
     }
-    
+
+    if (accessibleUnits.length === 0) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('descartaveis_items')
         .select('*')
         .order('nome');
 
+      // Defesa em profundidade: sempre restringe ao accessibleUnits do usuário.
+      if (selectedUnidade && selectedUnidade !== 'todas' && accessibleUnits.includes(selectedUnidade)) {
+        query = query.eq('unidade', selectedUnidade);
+      } else {
+        query = query.in('unidade', accessibleUnits);
+      }
+
+      const { data, error } = await query;
+
       if (error) throw error;
-      
+
       const mappedItems = (data || []).map(item => ({
         ...item,
         unidade_item: item.unidade as 'juazeiro_norte' | 'fortaleza'
       }));
-      
+
       setItems(mappedItems);
     } catch (error) {
       console.error('Error fetching items:', error);
@@ -64,17 +80,26 @@ export function useDescartaveisData() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, selectedUnidade, accessibleUnits]);
 
   const addItem = async (newItem: Omit<DescartaveisItem, 'id'> & { unidade_item?: 'juazeiro_norte' | 'fortaleza' }) => {
     if (!user) return;
 
     try {
       const { unidade_item, ...restNewItem } = newItem;
+      const unidadeAlvo =
+        unidade_item && accessibleUnits.includes(unidade_item)
+          ? unidade_item
+          : accessibleUnits[0];
+
+      if (!unidadeAlvo) {
+        throw new Error('Sem unidade acessível para inserir item');
+      }
+
       const itemToInsert = {
         ...restNewItem,
         user_id: user.id,
-        unidade: unidade_item || 'juazeiro_norte'
+        unidade: unidadeAlvo
       };
 
       const { data, error } = await supabase
@@ -225,7 +250,7 @@ export function useDescartaveisData() {
 
   useEffect(() => {
     fetchItems();
-  }, [user]);
+  }, [fetchItems]);
 
   return {
     items,

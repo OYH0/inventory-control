@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { LogOut, User, Home, Snowflake, Thermometer, Package2, FileText, Settings, Wine } from 'lucide-react';
+import { LogOut, User, Home, Snowflake, Thermometer, Package2, FileText, Settings, Wine, Crown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnit } from '@/contexts/UnitContext';
 import { UnitSelector } from '@/components/UnitSelector';
@@ -56,7 +57,7 @@ const routeConfig = {
 
 export function Header() {
   const { user, signOut } = useAuth();
-  const { selectedUnit, accessibleUnits, setSelectedUnit, loading: unitLoading } = useUnit();
+  const { selectedUnit, accessibleUnits, setSelectedUnit, loading: unitLoading, isMaster } = useUnit();
   const location = useLocation();
   const isMobile = useIsMobile();
   const currentRoute = routeConfig[location.pathname as keyof typeof routeConfig];
@@ -102,6 +103,18 @@ export function Header() {
       {!isMobile && <div className="flex-1" />}
 
       <div className="flex items-center gap-3">
+        {/* Bandeira MASTER */}
+        {isMaster && (
+          <Badge
+            variant="default"
+            className="gap-1 bg-amber-500 hover:bg-amber-500 text-white border-amber-600"
+            title="Você é o MASTER do sistema — acesso global a todas as unidades."
+          >
+            <Crown className="h-3.5 w-3.5" />
+            <span className="font-semibold tracking-wide">{isMobile ? 'M' : 'MASTER'}</span>
+          </Badge>
+        )}
+
         {/* Unit Selector */}
         <UnitSelector
           selectedUnit={selectedUnit}

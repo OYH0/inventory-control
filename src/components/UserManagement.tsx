@@ -18,7 +18,7 @@ interface UserProfile {
   email: string;
   full_name: string;
   user_type: 'admin' | 'viewer' | 'gerente';
-  unidade_responsavel: 'juazeiro_norte' | 'fortaleza';
+  unidade_responsavel: 'juazeiro_norte' | 'fortaleza' | null;
   created_at: string;
 }
 
@@ -107,22 +107,28 @@ export function UserManagement() {
     }
   };
 
-  const updateUserUnidade = async (userId: string, newUnidade: 'juazeiro_norte' | 'fortaleza') => {
+  const updateUserUnidade = async (userId: string, newUnidade: 'juazeiro_norte' | 'fortaleza' | 'todas') => {
     try {
+      const valorParaSalvar = newUnidade === 'todas' ? null : newUnidade;
+
       const { error } = await supabase
         .from('profiles')
-        .update({ unidade_responsavel: newUnidade })
+        .update({ unidade_responsavel: valorParaSalvar })
         .eq('id', userId);
 
       if (error) throw error;
 
-      setUsers(prev => prev.map(user => 
-        user.id === userId ? { ...user, unidade_responsavel: newUnidade } : user
+      setUsers(prev => prev.map(user =>
+        user.id === userId ? { ...user, unidade_responsavel: valorParaSalvar } : user
       ));
+
+      const descricao = newUnidade === 'todas'
+        ? 'Usuário agora tem acesso a todas as unidades'
+        : `Usuário agora gerencia ${newUnidade === 'juazeiro_norte' ? 'Juazeiro do Norte' : 'Fortaleza'}`;
 
       toast({
         title: "Unidade atualizada",
-        description: `Usuário agora gerencia ${newUnidade === 'juazeiro_norte' ? 'Juazeiro do Norte' : 'Fortaleza'}`,
+        description: descricao,
       });
     } catch (error) {
       console.error('Error updating user unidade:', error);
@@ -205,9 +211,9 @@ export function UserManagement() {
               <div className="text-sm text-muted-foreground space-y-2">
                 <p className="font-medium">Usuários encontrados: {users.length}</p>
                 <div className="space-y-1 text-xs md:text-sm">
-                  <p><strong>Admin:</strong> Pode ver e modificar dados de todas as unidades + transferir itens</p>
-                  <p><strong>Gerente:</strong> Pode ver dados de todas as unidades, mas só pode modificar itens da sua unidade</p>
-                  <p><strong>Visualizador:</strong> Só pode visualizar dados de todas as unidades</p>
+                  <p><strong>Admin:</strong> Vê e modifica dados conforme a "Unidade Responsável" abaixo. Selecione "Todas as Unidades" para acesso global (super-admin).</p>
+                  <p><strong>Gerente / Visualizador:</strong> Acesso conforme as permissões granulares na aba "Unidades", ou da "Unidade Responsável" se não houver permissões definidas.</p>
+                  <p className="text-xs italic">Mudar a Unidade Responsável requer logout/login para refletir nas telas.</p>
                 </div>
               </div>
               <Button onClick={fetchUsers} variant="outline" size={isMobile ? "sm" : "default"}>
@@ -232,7 +238,11 @@ export function UserManagement() {
                     </Badge>
                     <Badge variant="outline" className="text-xs">
                       <MapPin className="h-3 w-3 mr-1" />
-                      {user.unidade_responsavel === 'juazeiro_norte' ? 'Juazeiro do Norte' : 'Fortaleza'}
+                      {user.unidade_responsavel === 'juazeiro_norte'
+                        ? 'Juazeiro do Norte'
+                        : user.unidade_responsavel === 'fortaleza'
+                        ? 'Fortaleza'
+                        : 'Todas as Unidades'}
                     </Badge>
                   </div>
                 </div>
@@ -259,8 +269,8 @@ export function UserManagement() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Unidade Responsável</label>
                     <Select
-                      value={user.unidade_responsavel}
-                      onValueChange={(value: 'juazeiro_norte' | 'fortaleza') => updateUserUnidade(user.id, value)}
+                      value={user.unidade_responsavel ?? 'todas'}
+                      onValueChange={(value: 'juazeiro_norte' | 'fortaleza' | 'todas') => updateUserUnidade(user.id, value)}
                     >
                       <SelectTrigger className="text-sm">
                         <SelectValue />
@@ -268,6 +278,7 @@ export function UserManagement() {
                       <SelectContent>
                         <SelectItem value="juazeiro_norte">Juazeiro do Norte</SelectItem>
                         <SelectItem value="fortaleza">Fortaleza</SelectItem>
+                        <SelectItem value="todas">Todas as Unidades (acesso global)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

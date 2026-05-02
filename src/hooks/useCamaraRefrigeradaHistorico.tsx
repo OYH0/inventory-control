@@ -1,7 +1,7 @@
-
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnit } from '@/contexts/UnitContext';
 import { toast } from '@/hooks/use-toast';
 
 export interface CamaraRefrigeradaHistoricoItem {
@@ -20,53 +20,37 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
   const [historico, setHistorico] = useState<CamaraRefrigeradaHistoricoItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const lastFetchRef = useRef<number>(0);
-  const cacheRef = useRef<{ data: CamaraRefrigeradaHistoricoItem[], timestamp: number, unidade: string } | null>(null);
+  const { accessibleUnits } = useUnit();
   const pendingRequestRef = useRef<boolean>(false);
   const lastInsertRef = useRef<{ item: string, quantidade: number, tipo: string, timestamp: number } | null>(null);
 
-  // Cache duration: 5 minutes for history (longer cache)
-  const CACHE_DURATION = 5 * 60 * 1000;
-
-  const fetchHistorico = async () => {
+  const fetchHistorico = useCallback(async () => {
     if (!user || pendingRequestRef.current) return;
-    
-    const now = Date.now();
-    const cacheKey = selectedUnidade || 'todas';
-    
-    // Check cache first
-    if (cacheRef.current && 
-        (now - cacheRef.current.timestamp) < CACHE_DURATION && 
-        cacheRef.current.unidade === cacheKey) {
-      console.log('Using cached data for camara refrigerada history');
-      setHistorico(cacheRef.current.data);
+
+    if (accessibleUnits.length === 0) {
+      setHistorico([]);
       setLoading(false);
       return;
     }
 
-    // Throttle requests - 30 seconds for history
-    if (now - lastFetchRef.current < 30000) {
-      console.log('Throttling camara refrigerada history fetch request');
-      return;
-    }
-
-    lastFetchRef.current = now;
     pendingRequestRef.current = true;
-    
+
     try {
       let query = supabase
         .from('camara_refrigerada_historico')
         .select('id,item_nome,quantidade,categoria,tipo,data_operacao,observacoes,unidade')
         .order('data_operacao', { ascending: false });
 
-      if (selectedUnidade && selectedUnidade !== 'todas') {
+      if (selectedUnidade && selectedUnidade !== 'todas' && accessibleUnits.includes(selectedUnidade)) {
         query = query.eq('unidade', selectedUnidade);
+      } else {
+        query = query.in('unidade', accessibleUnits);
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
-      
+
       const mappedHistorico: CamaraRefrigeradaHistoricoItem[] = (data || []).map(item => ({
         id: item.id,
         item_nome: item.item_nome,
@@ -78,14 +62,7 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
         observacoes: item.observacoes,
         unidade_item: item.unidade as 'juazeiro_norte' | 'fortaleza',
       }));
-      
-      // Update cache
-      cacheRef.current = {
-        data: mappedHistorico,
-        timestamp: now,
-        unidade: cacheKey
-      };
-      
+
       setHistorico(mappedHistorico);
     } catch (error) {
       console.error('Error fetching history:', error);
@@ -98,37 +75,30 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
       setLoading(false);
       pendingRequestRef.current = false;
     }
-  };
+  }, [user, selectedUnidade, accessibleUnits]);
 
   const addHistoricoItem = async (item: Omit<CamaraRefrigeradaHistoricoItem, 'id' | 'data_operacao'>) => {
     if (!user || pendingRequestRef.current) return;
 
     const now = Date.now();
 
-    // Verificação de duplicação recente (baseada em dados do banco)
-    const recentDuplicate = historico.find(h => 
+    const recentDuplicate = historico.find(h =>
       h.item_nome === item.item_nome &&
       h.quantidade === item.quantidade &&
       h.tipo === item.tipo &&
-      new Date(h.data_operacao).getTime() > (now - 5000) // 5 segundos
+      new Date(h.data_operacao).getTime() > (now - 5000)
     );
 
-    if (recentDuplicate) {
-      console.log('Duplicação detectada na câmara refrigerada (histórico), ignorando inserção:', item);
-      return;
-    }
+    if (recentDuplicate) return;
 
-    // Verificação de duplicação baseada na última inserção local
     if (lastInsertRef.current &&
         lastInsertRef.current.item === item.item_nome &&
         lastInsertRef.current.quantidade === item.quantidade &&
         lastInsertRef.current.tipo === item.tipo &&
-        (now - lastInsertRef.current.timestamp) < 3000) { // 3 segundos
-      console.log('Duplicação detectada na câmara refrigerada (local), ignorando inserção:', item);
+        (now - lastInsertRef.current.timestamp) < 3000) {
       return;
     }
 
-    // Marcar que uma inserção está sendo processada
     pendingRequestRef.current = true;
     lastInsertRef.current = {
       item: item.item_nome,
@@ -138,8 +108,16 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
     };
 
     try {
-      const unidadeParaSalvar = item.unidade_item || 'juazeiro_norte';
-      
+      const unidadeProposta = item.unidade_item;
+      const unidadeParaSalvar =
+        unidadeProposta && accessibleUnits.includes(unidadeProposta)
+          ? unidadeProposta
+          : accessibleUnits[0];
+
+      if (!unidadeParaSalvar) {
+        throw new Error('Sem unidade acessível para registrar histórico');
+      }
+
       const itemParaInserir = {
         item_nome: item.item_nome,
         quantidade: item.quantidade,
@@ -150,8 +128,6 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
         unidade: unidadeParaSalvar
       };
 
-      console.log('Inserindo no histórico da câmara refrigerada:', itemParaInserir);
-
       const { data, error } = await supabase
         .from('camara_refrigerada_historico')
         .insert([itemParaInserir])
@@ -159,10 +135,7 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
         .single();
 
       if (error) throw error;
-      
-      // Clear cache on data change
-      cacheRef.current = null;
-      
+
       const mappedItem: CamaraRefrigeradaHistoricoItem = {
         id: data.id,
         item_nome: data.item_nome,
@@ -174,10 +147,8 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
         observacoes: data.observacoes,
         unidade_item: data.unidade as 'juazeiro_norte' | 'fortaleza',
       };
-      
+
       setHistorico(prev => [mappedItem, ...prev]);
-      
-      console.log('Histórico inserido com sucesso:', mappedItem);
     } catch (error) {
       console.error('Error adding history item:', error);
       toast({
@@ -191,12 +162,8 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
   };
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchHistorico();
-    }, 1000); // Increased debounce for mobile
-
-    return () => clearTimeout(timeoutId);
-  }, [user, selectedUnidade]);
+    fetchHistorico();
+  }, [fetchHistorico]);
 
   return {
     historico,
@@ -205,4 +172,3 @@ export function useCamaraRefrigeradaHistorico(selectedUnidade?: 'juazeiro_norte'
     fetchHistorico
   };
 }
-

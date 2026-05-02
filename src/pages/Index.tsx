@@ -111,11 +111,12 @@ const Index = () => {
                 </div>
               )}
 
-              {/* Conteúdo principal integrado com animações */}
-              <main 
-                {...(isMobile ? handlers : {})} 
-                className="flex-1 px-4 py-4 md:px-6 md:py-6 relative overflow-x-hidden overflow-y-auto bg-churrasco-cream"
-                style={isMobile ? { 
+              {/* Conteúdo principal — único container com scroll para evitar
+                  scrollbars aninhadas e cards cortados. */}
+              <main
+                {...(isMobile ? handlers : {})}
+                className="flex-1 min-h-0 px-4 py-4 md:px-6 md:py-6 relative overflow-x-hidden bg-churrasco-cream"
+                style={isMobile ? {
                   touchAction: 'pan-y',
                   userSelect: 'none',
                   WebkitUserSelect: 'none',
@@ -123,25 +124,23 @@ const Index = () => {
                   msUserSelect: 'none'
                 } : undefined}
               >
-                <PageTransition className="relative z-10 w-full h-full">
-                  <div className="h-full w-full overflow-y-auto overflow-x-hidden">
-                    <div className="max-w-full w-full space-y-4">
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/camara-fria" element={<CamaraFria />} />
-                        <Route path="/camara-refrigerada" element={<CamaraRefrigerada />} />
-                        <Route path="/estoque-seco" element={<EstoqueSeco />} />
-                        <Route path="/descartaveis" element={<Descartaveis />} />
-                        <Route path="/bebidas" element={<Bebidas />} />
-                        <Route path="/alertas-vencimento" element={<ExpiryAlertDashboard />} />
-                        <Route path="/analise-abc" element={<ABCDashboard />} />
-                        <Route path="/pedidos" element={<OrdersDashboard />} />
-                        <Route path="/pedidos/:orderId" element={<OrderDetails />} />
-                        <Route path="/pedidos/:orderId/edit" element={<OrderEdit />} />
-                        <Route path="/configuracoes" element={<UserManagement />} />
-                        <Route path="/master-panel" element={<MasterPanel />} />
-                      </Routes>
-                    </div>
+                <PageTransition className="relative z-10 w-full">
+                  <div className="w-full max-w-full space-y-4">
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/camara-fria" element={<CamaraFria />} />
+                      <Route path="/camara-refrigerada" element={<CamaraRefrigerada />} />
+                      <Route path="/estoque-seco" element={<EstoqueSeco />} />
+                      <Route path="/descartaveis" element={<Descartaveis />} />
+                      <Route path="/bebidas" element={<Bebidas />} />
+                      <Route path="/alertas-vencimento" element={<ExpiryAlertDashboard />} />
+                      <Route path="/analise-abc" element={<ABCDashboard />} />
+                      <Route path="/pedidos" element={<OrdersDashboard />} />
+                      <Route path="/pedidos/:orderId" element={<OrderDetails />} />
+                      <Route path="/pedidos/:orderId/edit" element={<OrderEdit />} />
+                      <Route path="/configuracoes" element={<UserManagement />} />
+                      <Route path="/master-panel" element={<MasterPanel />} />
+                    </Routes>
                   </div>
                 </PageTransition>
               </main>

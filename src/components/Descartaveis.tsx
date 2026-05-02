@@ -15,18 +15,20 @@ import { QRCodeGenerator } from '@/components/qr-scanner/QRCodeGenerator';
 import { QRScanner } from '@/components/qr-scanner/QRScanner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { generateInventoryPDF } from '@/utils/pdfGenerator';
-import { UnidadeSelector } from '@/components/UnidadeSelector';
+import { useUnit } from '@/contexts/UnitContext';
 
 import { AdminGuard } from '@/components/AdminGuard';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 export default function Descartaveis() {
-  const { items, loading, addItem, updateItemQuantity, deleteItem, qrCodes, showQRGenerator, setShowQRGenerator, lastAddedItem, fetchItems } = useDescartaveisData();
+  const { selectedUnit } = useUnit();
+  const selectedUnidade: 'juazeiro_norte' | 'fortaleza' | 'todas' = selectedUnit ?? 'todas';
+
+  const { items, loading, addItem, updateItemQuantity, deleteItem, qrCodes, showQRGenerator, setShowQRGenerator, lastAddedItem, fetchItems } = useDescartaveisData(selectedUnidade);
   const { historico } = useDescartaveisHistorico();
   const { isAdmin } = useUserPermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('Todos');
-  const [selectedUnidade, setSelectedUnidade] = useState<'juazeiro_norte' | 'fortaleza' | 'todas'>('todas');
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -45,9 +47,7 @@ export default function Descartaveis() {
     const matchesSearch = item.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.categoria.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'Todos' || item.categoria === filterCategory;
-    const matchesUnidade = selectedUnidade === 'todas' || 
-                          (item as any).unidade === selectedUnidade;
-    return matchesSearch && matchesCategory && matchesUnidade;
+    return matchesSearch && matchesCategory;
   });
 
   const handleAddNewItem = async () => {
@@ -128,13 +128,6 @@ export default function Descartaveis() {
 
   return (
     <div className="space-y-6 animate-enter">
-      <div className={`flex flex-wrap gap-2 items-center ${isMobile ? 'justify-center' : ''}`}>
-        <UnidadeSelector 
-          selectedUnidade={selectedUnidade}
-          onUnidadeChange={setSelectedUnidade}
-        />
-      </div>
-
       <div className={`flex flex-wrap gap-2 ${isMobile ? 'justify-center' : ''}`}>
         <Button 
           variant="outline" 

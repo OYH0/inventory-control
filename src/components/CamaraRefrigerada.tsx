@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Loader2, CheckCircle, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { UnidadeSelector } from '@/components/UnidadeSelector';
+import { useUnit } from '@/contexts/UnitContext';
 import { useCamaraRefrigeradaData } from '@/hooks/useCamaraRefrigeradaData';
 import { useCamaraRefrigeradaHistorico } from '@/hooks/useCamaraRefrigeradaHistorico';
 import { useCamaraFriaData } from '@/hooks/useCamaraFriaData';
@@ -18,7 +18,9 @@ import { CamaraRefrigeradaInstructions } from '@/components/camara-refrigerada/C
 import { toast } from '@/hooks/use-toast';
 
 export function CamaraRefrigerada() {
-  const [selectedUnidade, setSelectedUnidade] = useState<'juazeiro_norte' | 'fortaleza' | 'todas'>('todas');
+  const { selectedUnit } = useUnit();
+  const selectedUnidade: 'juazeiro_norte' | 'fortaleza' | 'todas' = selectedUnit ?? 'todas';
+
   const { items, loading, updateItemStatus, deleteItem } = useCamaraRefrigeradaData(selectedUnidade);
   const { historico, loading: historicoLoading, addHistoricoItem } = useCamaraRefrigeradaHistorico(selectedUnidade);
   const { items: camaraFriaItems, addItem: addCamaraFriaItem, updateItemQuantity } = useCamaraFriaData();
@@ -291,12 +293,7 @@ export function CamaraRefrigerada() {
 
   return (
     <div className="space-y-6 animate-enter">
-      <UnidadeSelector 
-        selectedUnidade={selectedUnidade}
-        onUnidadeChange={setSelectedUnidade}
-      />
-
-      <CamaraRefrigeradaHeader 
+      <CamaraRefrigeradaHeader
         items={items}
         historico={historico}
         historicoLoading={historicoLoading}

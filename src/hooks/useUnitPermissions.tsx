@@ -16,16 +16,19 @@ export interface UnitPermission {
 
 interface UseUnitPermissionsReturn {
   accessibleUnits: Unidade[];
-  selectedUnit: Unidade | null;
-  setSelectedUnit: (unit: Unidade) => void;
+  selectedUnit: Unidade | null; // null = "todas as acessíveis"
+  setSelectedUnit: (unit: Unidade | null) => void;
   permissions: UnitPermission[];
   loading: boolean;
   isAdmin: boolean;
+  isMaster: boolean;
+  isApproved: boolean;
   canModifyUnit: (unit: Unidade) => boolean;
   refetch: () => Promise<void>;
 }
 
 const SELECTED_UNIT_KEY = 'selected_unit';
+const TODAS_SENTINEL = '__todas__';
 
 export function useUnitPermissions(): UseUnitPermissionsReturn {
   const [accessibleUnits, setAccessibleUnits] = useState<Unidade[]>([]);
@@ -33,6 +36,8 @@ export function useUnitPermissions(): UseUnitPermissionsReturn {
   const [permissions, setPermissions] = useState<UnitPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isMaster, setIsMaster] = useState(false);
+  const [isApproved, setIsApproved] = useState(false);
   const { user } = useAuth();
 
   const fetchPermissions = useCallback(async () => {
@@ -41,40 +46,71 @@ export function useUnitPermissions(): UseUnitPermissionsReturn {
       setPermissions([]);
       setSelectedUnitState(null);
       setIsAdmin(false);
+      setIsMaster(false);
+      setIsApproved(false);
       setLoading(false);
       return;
     }
 
     try {
-      // First check if user is admin
-      const { data: profileRows, error: profileError } = await supabase
+      // Tenta selecionar com is_master+is_approved; se a coluna não existir
+      // (migration pendente), refaz sem essas colunas.
+      let profileData: any = null;
+      const full = await supabase
         .from('profiles')
-        .select('user_type')
+        .select('user_type, unidade_responsavel, is_master, is_approved')
         .eq('id', user.id);
 
-      if (profileError) {
-        throw profileError;
+      if (full.error && /is_master|is_approved/.test(full.error.message ?? '')) {
+        const fallback = await supabase
+          .from('profiles')
+          .select('user_type, unidade_responsavel')
+          .eq('id', user.id);
+        if (fallback.error) throw fallback.error;
+        profileData = fallback.data?.[0] ?? null;
+      } else if (full.error) {
+        throw full.error;
+      } else {
+        profileData = full.data?.[0] ?? null;
       }
 
-      const profileData = profileRows?.[0] ?? null;
       const userIsAdmin = profileData?.user_type === 'admin';
+      const userIsMaster = profileData?.is_master === true;
+      // Default true se a coluna não existir (compatibilidade pré-migration).
+      const userApproved = profileData?.is_approved !== false;
       setIsAdmin(userIsAdmin);
+      setIsMaster(userIsMaster);
+      setIsApproved(userApproved);
 
-      if (userIsAdmin) {
-        // Admins have access to all units
-        const allUnits: Unidade[] = ['juazeiro_norte', 'fortaleza'];
+      const ALL_UNITS: Unidade[] = ['juazeiro_norte', 'fortaleza'];
+
+      // Helper para restaurar selectedUnit. Aceita sentinela "__todas__"
+      // significando null (= ver todas as acessíveis).
+      const restoreSelected = (units: Unidade[]) => {
+        const saved = localStorage.getItem(SELECTED_UNIT_KEY);
+        if (saved === TODAS_SENTINEL && units.length > 1) {
+          setSelectedUnitState(null);
+          return;
+        }
+        if (saved && (units as string[]).includes(saved)) {
+          setSelectedUnitState(saved as Unidade);
+          return;
+        }
+        // Default: se tem várias unidades, abre em "todas"; se tem uma, abre nela.
+        setSelectedUnitState(units.length > 1 ? null : units[0] ?? null);
+      };
+
+      if (userIsMaster) {
+        setAccessibleUnits(ALL_UNITS);
+        setPermissions([]);
+        restoreSelected(ALL_UNITS);
+      } else if (userIsAdmin) {
+        const responsavel = profileData?.unidade_responsavel as Unidade | null;
+        const allUnits: Unidade[] = responsavel ? [responsavel] : ALL_UNITS;
         setAccessibleUnits(allUnits);
         setPermissions([]);
-        
-        // Restore selected unit from localStorage or default to first
-        const savedUnit = localStorage.getItem(SELECTED_UNIT_KEY) as Unidade | null;
-        if (savedUnit && allUnits.includes(savedUnit)) {
-          setSelectedUnitState(savedUnit);
-        } else {
-          setSelectedUnitState(allUnits[0]);
-        }
+        restoreSelected(allUnits);
       } else {
-        // Fetch user's unit permissions
         const { data: permData, error } = await supabase
           .from('user_unit_permissions')
           .select('*')
@@ -88,19 +124,14 @@ export function useUnitPermissions(): UseUnitPermissionsReturn {
         } else {
           const perms = (permData || []) as UnitPermission[];
           setPermissions(perms);
-          
-          const units = perms.map(p => p.unidade);
-          setAccessibleUnits(units);
-          
-          // Restore selected unit from localStorage or default to first accessible
-          const savedUnit = localStorage.getItem(SELECTED_UNIT_KEY) as Unidade | null;
-          if (savedUnit && units.includes(savedUnit)) {
-            setSelectedUnitState(savedUnit);
-          } else if (units.length > 0) {
-            setSelectedUnitState(units[0]);
-          } else {
-            setSelectedUnitState(null);
+
+          let units = perms.map(p => p.unidade);
+          if (units.length === 0 && profileData?.unidade_responsavel) {
+            units = [profileData.unidade_responsavel as Unidade];
           }
+
+          setAccessibleUnits(units);
+          restoreSelected(units);
         }
       }
     } catch (error) {
@@ -112,17 +143,18 @@ export function useUnitPermissions(): UseUnitPermissionsReturn {
     }
   }, [user]);
 
-  const setSelectedUnit = useCallback((unit: Unidade) => {
+  const setSelectedUnit = useCallback((unit: Unidade | null) => {
     setSelectedUnitState(unit);
-    localStorage.setItem(SELECTED_UNIT_KEY, unit);
+    localStorage.setItem(SELECTED_UNIT_KEY, unit ?? TODAS_SENTINEL);
   }, []);
 
   const canModifyUnit = useCallback((unit: Unidade): boolean => {
-    if (isAdmin) return true;
-    
+    if (isMaster) return true;
+    if (isAdmin && accessibleUnits.includes(unit)) return true;
+
     const perm = permissions.find(p => p.unidade === unit);
     return perm?.can_modify ?? false;
-  }, [isAdmin, permissions]);
+  }, [isMaster, isAdmin, accessibleUnits, permissions]);
 
   useEffect(() => {
     fetchPermissions();
@@ -135,6 +167,8 @@ export function useUnitPermissions(): UseUnitPermissionsReturn {
     permissions,
     loading,
     isAdmin,
+    isMaster,
+    isApproved,
     canModifyUnit,
     refetch: fetchPermissions,
   };

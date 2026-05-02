@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUnit } from '@/contexts/UnitContext';
 import { toast } from '@/hooks/use-toast';
 
 export interface CamaraRefrigeradaItem {
@@ -22,53 +23,35 @@ export function useCamaraRefrigeradaData(selectedUnidade?: 'juazeiro_norte' | 'f
   const [items, setItems] = useState<CamaraRefrigeradaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+  const { accessibleUnits } = useUnit();
   const mountedRef = useRef(true);
   const loggedRef = useRef(false);
-  const lastFetchRef = useRef<number>(0);
-  const cacheRef = useRef<{ data: CamaraRefrigeradaItem[], timestamp: number, unidade: string } | null>(null);
-
-  // Cache duration: 2 minutes for better mobile performance
-  const CACHE_DURATION = 2 * 60 * 1000;
 
   const fetchItems = useCallback(async (unidadeFiltro?: 'juazeiro_norte' | 'fortaleza' | 'todas') => {
     if (!user || !mountedRef.current) return;
-    
-    const now = Date.now();
-    const cacheKey = unidadeFiltro || 'todas';
-    
-    // Check cache first
-    if (cacheRef.current && 
-        (now - cacheRef.current.timestamp) < CACHE_DURATION && 
-        cacheRef.current.unidade === cacheKey) {
-      console.log('Using cached data for camera refrigerada');
-      setItems(cacheRef.current.data);
-      setLoading(false);
-      return;
-    }
 
-    // Throttle requests - minimum 10 seconds between fetches for mobile
-    if (now - lastFetchRef.current < 10000) {
-      console.log('Throttling camera refrigerada fetch request');
-      return;
-    }
-
-    lastFetchRef.current = now;
-    
-    // Log apenas uma vez por sessão
     if (!loggedRef.current) {
       console.log('=== FETCH INICIAL DA CÂMARA REFRIGERADA ===');
       loggedRef.current = true;
     }
-    
+
+    if (accessibleUnits.length === 0) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       let query = supabase
         .from('camara_refrigerada_items')
         .select('id,nome,quantidade,categoria,status,data_entrada,temperatura_ideal,observacoes,unidade')
         .order('nome');
 
-      // Aplicar filtro no banco se não for "todas"
-      if (unidadeFiltro && unidadeFiltro !== 'todas') {
+      // Defesa em profundidade: sempre restringe ao accessibleUnits do usuário.
+      if (unidadeFiltro && unidadeFiltro !== 'todas' && accessibleUnits.includes(unidadeFiltro)) {
         query = query.eq('unidade', unidadeFiltro);
+      } else {
+        query = query.in('unidade', accessibleUnits);
       }
 
       const { data, error } = await query;
@@ -101,14 +84,7 @@ export function useCamaraRefrigeradaData(selectedUnidade?: 'juazeiro_norte' | 'f
           unidade_item: item.unidade as 'juazeiro_norte' | 'fortaleza',
         };
       });
-      
-      // Update cache
-      cacheRef.current = {
-        data: mappedItems,
-        timestamp: now,
-        unidade: cacheKey
-      };
-      
+
       setItems(mappedItems);
     } catch (error) {
       console.error('Error fetching items:', error);
@@ -124,27 +100,15 @@ export function useCamaraRefrigeradaData(selectedUnidade?: 'juazeiro_norte' | 'f
         setLoading(false);
       }
     }
-  }, [user]);
+  }, [user, accessibleUnits]);
 
-  // Effect for initial load and user changes
   useEffect(() => {
     if (user) {
       fetchItems(selectedUnidade);
     } else {
       setLoading(false);
     }
-  }, [user, fetchItems]);
-
-  // Effect for unit changes - with longer debounce for mobile
-  useEffect(() => {
-    if (user) {
-      const timeoutId = setTimeout(() => {
-        fetchItems(selectedUnidade);
-      }, 1000); // 1000ms debounce for better mobile performance
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [selectedUnidade, user, fetchItems]);
+  }, [user, selectedUnidade, fetchItems]);
 
   // Cleanup effect
   useEffect(() => {
@@ -179,10 +143,7 @@ export function useCamaraRefrigeradaData(selectedUnidade?: 'juazeiro_norte' | 'f
         .single();
 
       if (error) throw error;
-      
-      // Clear cache on data change
-      cacheRef.current = null;
-      
+
       // Add to local state immediately
       const mappedItem = {
         id: data.id,
@@ -222,10 +183,7 @@ export function useCamaraRefrigeradaData(selectedUnidade?: 'juazeiro_norte' | 'f
 
       if (error) throw error;
 
-      // Clear cache on data change
-      cacheRef.current = null;
-
-      setItems(prev => prev.map(item => 
+setItems(prev => prev.map(item => 
         item.id === id ? { ...item, status } : item
       ));
     } catch (error) {
@@ -247,10 +205,7 @@ export function useCamaraRefrigeradaData(selectedUnidade?: 'juazeiro_norte' | 'f
 
       if (error) throw error;
 
-      // Clear cache on data change
-      cacheRef.current = null;
-
-      setItems(prev => prev.filter(item => item.id !== id));
+setItems(prev => prev.filter(item => item.id !== id));
       toast({
         title: "Item removido",
         description: "Item foi removido da câmara refrigerada.",
