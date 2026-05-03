@@ -4,6 +4,39 @@ import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+/* ── Global trigger tracker ─────────────────────────────
+   Grava o CENTRO do botão/ícone que o usuário clicou nas
+   custom properties --pointer-x/y (:root). Quando um dialog
+   já está aberto, a posição não é atualizada — assim o
+   fechamento anima de volta para o ícone que abriu.        */
+if (typeof window !== "undefined" && !(window as any).__ptrTracked) {
+  ;(window as any).__ptrTracked = true
+  document.addEventListener(
+    "pointerdown",
+    (e) => {
+      // Não atualizar enquanto um dialog já está aberto
+      if (document.querySelector('[role="dialog"]')) return
+
+      // Encontrar o botão/ícone mais próximo do clique
+      const trigger = (e.target as HTMLElement).closest?.(
+        'button, [role="button"], a, [data-dialog-trigger], .cursor-pointer'
+      ) as HTMLElement | null
+
+      if (trigger) {
+        // Usar o CENTRO do elemento trigger
+        const rect = trigger.getBoundingClientRect()
+        document.documentElement.style.setProperty("--pointer-x", `${rect.left + rect.width / 2}px`)
+        document.documentElement.style.setProperty("--pointer-y", `${rect.top + rect.height / 2}px`)
+      } else {
+        // Fallback: posição do clique
+        document.documentElement.style.setProperty("--pointer-x", `${e.clientX}px`)
+        document.documentElement.style.setProperty("--pointer-y", `${e.clientY}px`)
+      }
+    },
+    { passive: true },
+  )
+}
+
 const Dialog = DialogPrimitive.Root
 
 const DialogTrigger = DialogPrimitive.Trigger
@@ -38,10 +71,8 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-popover p-6 shadow-xl duration-200 rounded-xl sm:rounded-lg",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
-        "data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95",
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-border bg-popover p-6 shadow-xl rounded-xl sm:rounded-lg",
+        "dialog-origin-animate",
         className
       )}
       {...props}
