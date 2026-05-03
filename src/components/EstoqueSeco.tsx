@@ -106,12 +106,12 @@ export default function EstoqueSeco() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
-          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+          <div className="h-8 w-8 bg-muted rounded animate-pulse" />
+          <div className="h-6 w-32 bg-muted rounded animate-pulse" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-48 bg-gray-200 rounded-lg animate-pulse" />
+            <div key={i} className="h-48 bg-muted rounded-lg animate-pulse" />
           ))}
         </div>
       </div>
@@ -128,7 +128,7 @@ export default function EstoqueSeco() {
         <Button
           variant="outline" 
           size={isMobile ? "sm" : "default"}
-          className="border-gray-300"
+          className="border-border"
           onClick={handlePrintPDF}
         >
           <FileText className="w-4 h-4 mr-1 md:mr-2" />
@@ -140,7 +140,7 @@ export default function EstoqueSeco() {
             <Button 
               variant="outline" 
               size={isMobile ? "sm" : "default"}
-              className="border-gray-300"
+              className="border-border"
             >
               <History className="w-4 h-4 mr-1 md:mr-2" />
               <span className={isMobile ? "text-xs" : "text-sm"}>Histórico</span>
@@ -230,7 +230,7 @@ export default function EstoqueSeco() {
 
       {filteredItems.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">Nenhum item encontrado</p>
+          <p className="text-muted-foreground text-lg">Nenhum item encontrado</p>
         </div>
       )}
 

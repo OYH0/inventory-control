@@ -18,7 +18,7 @@ export function StatusBadge({ isActive, variant = 'default' }: StatusBadgeProps)
   return (
     <Badge 
       variant={isActive ? 'default' : 'secondary'} 
-      className={isActive ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-400 text-white hover:bg-gray-500'}
+      className={isActive ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-400 text-white hover:bg-muted/400'}
     >
       {isActive ? (
         <>

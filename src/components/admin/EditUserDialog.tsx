@@ -376,7 +376,7 @@ export function EditUserDialog({ user, onClose, onSuccess }: EditUserDialogProps
                             disabled={org.role === 'owner'}
                             title={org.role === 'owner' ? 'Não é possível remover o owner' : 'Remover da organização'}
                           >
-                            <X className={`w-4 h-4 ${org.role === 'owner' ? 'text-gray-400' : ''}`} />
+                            <X className={`w-4 h-4 ${org.role === 'owner' ? 'text-muted-foreground' : ''}`} />
                           </Button>
                         </div>
                       </div>

@@ -63,13 +63,30 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
+				info: {
+					DEFAULT: 'hsl(var(--info))',
+					foreground: 'hsl(var(--info-foreground))'
+				},
 				churrasco: {
-					brown: 'hsl(var(--churrasco-brown))',
-					red: 'hsl(var(--churrasco-red))',
-					orange: 'hsl(var(--churrasco-orange))',
-					cream: 'hsl(var(--churrasco-cream))',
-					dark: 'hsl(var(--churrasco-dark))'
+					brown: 'hsl(24 30% 25%)',
+					red: 'hsl(var(--primary))',
+					orange: 'hsl(38 92% 55%)',
+					cream: 'hsl(var(--background))',
+					dark: 'hsl(var(--sidebar-background))'
 				}
+			},
+			fontFamily: {
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				display: ['Bricolage Grotesque', 'Inter', 'system-ui', 'sans-serif'],
+				mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

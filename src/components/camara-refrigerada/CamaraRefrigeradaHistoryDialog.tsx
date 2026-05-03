@@ -53,15 +53,15 @@ export function CamaraRefrigeradaHistoryDialog({
 
   return (
     <>
-      <DialogContent className="max-w-2xl bg-white mobile-optimized">
+      <DialogContent className="max-w-2xl mobile-optimized">
         <DialogHeader>
           <div className={`flex items-center ${isMobile ? 'flex-col gap-2' : 'justify-between'}`}>
             <div className={isMobile ? 'text-center' : ''}>
-              <DialogTitle className="flex items-center gap-2 text-lg text-gray-900">
+              <DialogTitle className="flex items-center gap-2 text-lg text-foreground">
                 <Calendar className="w-4 h-4" />
                 Histórico de Movimentações
               </DialogTitle>
-              <DialogDescription className="text-gray-600">
+              <DialogDescription className="text-muted-foreground">
                 Registro de retiradas e retornos ao freezer
               </DialogDescription>
             </div>
@@ -95,22 +95,22 @@ export function CamaraRefrigeradaHistoryDialog({
         <div className="max-h-96 overflow-y-auto space-y-2 scroll-smooth">
           {loading ? (
             <div className="text-center py-4">
-              <p className="text-gray-500 text-sm">Carregando histórico...</p>
+              <p className="text-muted-foreground text-sm">Carregando histórico...</p>
             </div>
           ) : processedHistorico.length === 0 ? (
             <div className="text-center py-8">
-              <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-              <p className="text-gray-500 text-sm">Nenhuma movimentação registrada</p>
+              <Calendar className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
+              <p className="text-muted-foreground text-sm">Nenhuma movimentação registrada</p>
             </div>
           ) : (
             processedHistorico.map((item) => (
               <div 
                 key={item.id} 
-                className="bg-gray-50 rounded p-3 text-sm border border-gray-100 mobile-optimized"
+                className="bg-muted/40 rounded p-3 text-sm border border-border/60 mobile-optimized"
               >
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900 truncate max-w-[150px]">
+                    <span className="font-medium text-foreground truncate max-w-[150px]">
                       {item.item_nome}
                     </span>
                     <Badge 
@@ -120,12 +120,12 @@ export function CamaraRefrigeradaHistoryDialog({
                       {item.tipo === 'volta_freezer' ? 'Retorno' : 'Retirada'}
                     </Badge>
                   </div>
-                  <span className="text-xs text-gray-500 flex-shrink-0">
+                  <span className="text-xs text-muted-foreground flex-shrink-0">
                     {item.formattedDate}
                   </span>
                 </div>
                 
-                <div className="flex items-center gap-4 text-xs text-gray-600 flex-wrap">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                   <span className="flex-shrink-0">
                     Qtd: {item.quantidade} {item.unidadeDisplay}
                   </span>
@@ -140,7 +140,7 @@ export function CamaraRefrigeradaHistoryDialog({
                 </div>
                 
                 {item.observacoes && (
-                  <div className="mt-1 text-xs text-gray-500 truncate">
+                  <div className="mt-1 text-xs text-muted-foreground truncate">
                     {item.observacoes}
                   </div>
                 )}

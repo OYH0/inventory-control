@@ -86,21 +86,17 @@ const Index = () => {
   return (
     <ProtectedRoute>
       <SidebarProvider>
-        <div 
-          className="min-h-screen flex w-full relative bg-churrasco-cream"
-        >
+        <div className="min-h-screen flex w-full relative bg-background">
           <AppSidebar />
           <div className="flex-1 flex flex-col min-w-0 min-h-screen relative z-10">
             {/* Header sticky */}
-            <div className="sticky top-0 z-20 bg-churrasco-cream border-b border-border shadow-sm">
+            <div className="sticky top-0 z-20">
               <Header />
             </div>
-            
-            {/* Container unificado para navegação e conteúdo - sem bordas divisórias */}
-            <div className="flex-1 flex flex-col bg-churrasco-cream">
-              {/* Indicador de navegação integrado - visível apenas em mobile */}
+
+            <div className="flex-1 flex flex-col">
               {isMobile && (
-                <div className="sticky top-[64px] z-30 py-3">
+                <div className="sticky top-16 z-30 py-2 bg-background/80 backdrop-blur-md border-b border-border/60">
                   <NavigationIndicator
                     currentIndex={currentIndex}
                     totalRoutes={totalRoutes}
@@ -115,7 +111,7 @@ const Index = () => {
                   scrollbars aninhadas e cards cortados. */}
               <main
                 {...(isMobile ? handlers : {})}
-                className="flex-1 min-h-0 px-4 py-4 md:px-6 md:py-6 relative overflow-x-hidden bg-churrasco-cream"
+                className="flex-1 min-h-0 px-4 py-5 md:px-8 md:py-8 relative overflow-x-hidden bg-background"
                 style={isMobile ? {
                   touchAction: 'pan-y',
                   userSelect: 'none',

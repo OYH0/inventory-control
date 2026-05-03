@@ -71,19 +71,19 @@ export function DescartaveisHistoryDialog({ historico, loading = false }: Descar
         <div className="max-h-96 overflow-y-auto space-y-2">
           {loading ? (
             <div className="text-center py-4">
-              <p className="text-gray-500 text-sm">Carregando histórico...</p>
+              <p className="text-muted-foreground text-sm">Carregando histórico...</p>
             </div>
           ) : historico.length === 0 ? (
             <div className="text-center py-8">
-              <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-              <p className="text-gray-500 text-sm">Nenhuma movimentação registrada</p>
+              <Calendar className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
+              <p className="text-muted-foreground text-sm">Nenhuma movimentação registrada</p>
             </div>
           ) : (
             historico.map((item) => (
-              <div key={item.id} className="bg-gray-50 rounded p-3 text-sm">
+              <div key={item.id} className="bg-muted/40 rounded p-3 text-sm">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">{item.item_nome}</span>
+                    <span className="font-medium text-foreground">{item.item_nome}</span>
                     <Badge 
                       variant={item.tipo === 'entrada' ? 'default' : 'destructive'}
                       className="text-xs px-2 py-0"
@@ -91,9 +91,9 @@ export function DescartaveisHistoryDialog({ historico, loading = false }: Descar
                       {item.tipo === 'entrada' ? 'Entrada' : 'Saída'}
                     </Badge>
                   </div>
-                  <span className="text-xs text-gray-500">{formatDate(item.data_operacao)}</span>
+                  <span className="text-xs text-muted-foreground">{formatDate(item.data_operacao)}</span>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-gray-600">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span>Quantidade: {item.quantidade} {item.unidade}</span>
                   <span>Categoria: {item.categoria}</span>
                   {item.unidade_item && (
@@ -101,7 +101,7 @@ export function DescartaveisHistoryDialog({ historico, loading = false }: Descar
                   )}
                 </div>
                 {item.observacoes && (
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     {item.observacoes}
                   </div>
                 )}

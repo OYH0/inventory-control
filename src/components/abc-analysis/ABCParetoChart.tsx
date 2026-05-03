@@ -29,9 +29,9 @@ const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     const item = payload[0].payload;
     return (
-      <div className="bg-white border border-gray-300 rounded-lg p-3 shadow-lg">
+      <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
         <p className="font-bold text-sm mb-1">{item.fullName}</p>
-        {item.sku && <p className="text-xs text-gray-500 mb-2">SKU: {item.sku}</p>}
+        {item.sku && <p className="text-xs text-muted-foreground mb-2">SKU: {item.sku}</p>}
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-sm">
             <span 

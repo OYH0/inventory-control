@@ -193,9 +193,9 @@ export function HistoricoReportDialog({ historico, tipoEstoque, onClose }: Histo
           </div>
         </div>
 
-        <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+        <div className="text-sm text-muted-foreground bg-muted/40 p-3 rounded">
           <p><strong>Registros encontrados:</strong> {filtrarHistoricoPorData().length}</p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Deixe as datas em branco para incluir todo o histórico
           </p>
         </div>

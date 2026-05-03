@@ -15,10 +15,10 @@ export function ExpiryAlertStats({ stats, isLoading }: ExpiryAlertStatsProps) {
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-24" />
+              <div className="h-4 bg-muted rounded w-24" />
             </CardHeader>
             <CardContent>
-              <div className="h-8 bg-gray-200 rounded w-16 animate-pulse" />
+              <div className="h-8 bg-muted rounded w-16 animate-pulse" />
             </CardContent>
           </Card>
         ))}

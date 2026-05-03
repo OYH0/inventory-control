@@ -27,7 +27,19 @@ import { useDescartaveisData } from '@/hooks/useDescartaveisData';
 import { useBebidas } from '@/hooks/useBebidas';
 import { useCamaraRefrigeradaData } from '@/hooks/useCamaraRefrigeradaData';
 
-const CHART_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
+// Paleta dos gráficos alinhada ao design system (âmbar, esmeralda, info, etc.)
+const CHART_COLORS = [
+  'hsl(25 90% 50%)',   // primary âmbar
+  'hsl(158 70% 38%)',  // accent esmeralda
+  'hsl(217 75% 55%)',  // info azul
+  'hsl(38 92% 55%)',   // warning quente
+  'hsl(280 65% 55%)',  // roxo complementar
+  'hsl(340 75% 55%)',  // rosa choque
+  'hsl(180 60% 40%)',  // teal
+  'hsl(15 80% 55%)',   // coral
+];
+const CHART_ENTRADA = 'hsl(158 70% 38%)';
+const CHART_SAIDA = 'hsl(0 75% 52%)';
 
 export function Dashboard() {
   const isMobile = useIsMobile();
@@ -104,13 +116,13 @@ export function Dashboard() {
     return meatUsage;
   }, [camaraFriaHistorico]);
 
-  // Dados para resumo de categorias
+  // Dados para resumo de categorias (cores alinhadas ao design system)
   const categoryData = useMemo(() => [
-    { name: 'Câmara Fria', value: stats.categories.camaraFria, icon: Snowflake, color: '#3b82f6' },
-    { name: 'Estoque Seco', value: stats.categories.estoqueSeco, icon: Package, color: '#f59e0b' },
-    { name: 'Descartáveis', value: stats.categories.descartaveis, icon: FileText, color: '#10b981' },
-    { name: 'Bebidas', value: stats.categories.bebidas, icon: Wine, color: '#ef4444' },
-    { name: 'Câmara Refrigerada', value: stats.categories.camaraRefrigerada, icon: Thermometer, color: '#8b5cf6' }
+    { name: 'Câmara Fria', value: stats.categories.camaraFria, icon: Snowflake, color: 'hsl(217 75% 55%)' },
+    { name: 'Estoque Seco', value: stats.categories.estoqueSeco, icon: Package, color: 'hsl(38 92% 55%)' },
+    { name: 'Descartáveis', value: stats.categories.descartaveis, icon: FileText, color: 'hsl(158 70% 38%)' },
+    { name: 'Bebidas', value: stats.categories.bebidas, icon: Wine, color: 'hsl(25 90% 50%)' },
+    { name: 'Câmara Refrigerada', value: stats.categories.camaraRefrigerada, icon: Thermometer, color: 'hsl(280 65% 55%)' }
   ].filter(item => item.value > 0), [stats.categories]);
 
   // Análise de movimentação por dia (últimos 7 dias)
@@ -166,10 +178,10 @@ export function Dashboard() {
       {isMobile && (
         <div className="space-y-6">
           {/* Carnes Mais Utilizadas - Mobile First */}
-          <Card className="shadow-lg">
+          <Card className="card-elevated">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Snowflake className="w-5 h-5 text-blue-500" />
+                <Snowflake className="w-5 h-5 text-info" />
                 Carnes Mais Utilizadas
               </CardTitle>
               <CardDescription>
@@ -216,10 +228,10 @@ export function Dashboard() {
           </Card>
 
           {/* Movimentações - Mobile */}
-          <Card className="shadow-lg">
+          <Card className="card-elevated">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-green-500" />
+                <Activity className="w-5 h-5 text-success" />
                 Movimentações (7 dias)
               </CardTitle>
               <CardDescription>
@@ -239,21 +251,21 @@ export function Dashboard() {
                         name === 'entradas' ? 'Entradas' : 'Saídas'
                       ]}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="entradas" 
+                    <Area
+                      type="monotone"
+                      dataKey="entradas"
                       stackId="1"
-                      stroke="#10b981" 
-                      fill="#10b981" 
-                      fillOpacity={0.6}
+                      stroke={CHART_ENTRADA}
+                      fill={CHART_ENTRADA}
+                      fillOpacity={0.55}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="saidas" 
+                    <Area
+                      type="monotone"
+                      dataKey="saidas"
                       stackId="1"
-                      stroke="#ef4444" 
-                      fill="#ef4444" 
-                      fillOpacity={0.6}
+                      stroke={CHART_SAIDA}
+                      fill={CHART_SAIDA}
+                      fillOpacity={0.55}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -262,10 +274,10 @@ export function Dashboard() {
           </Card>
 
           {/* Itens Mais Movimentados - Mobile */}
-          <Card className="shadow-lg">
+          <Card className="card-elevated">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-orange-500" />
+                <TrendingUp className="w-5 h-5 text-warning" />
                 Itens Mais Movimentados
               </CardTitle>
               <CardDescription>
@@ -276,14 +288,14 @@ export function Dashboard() {
               {topMovedItems.length > 0 ? (
                 <div className="space-y-4">
                   {topMovedItems.map((item: any, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex items-center justify-between p-3 bg-muted/40 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600">
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">
                           {index + 1}
                         </div>
                         <div>
                           <p className="font-medium text-sm">{item.nome}</p>
-                          <p className="text-xs text-gray-600">
+                          <p className="text-xs text-muted-foreground">
                             {item.entradas} entradas • {item.saidas} saídas
                           </p>
                         </div>
@@ -305,58 +317,58 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* Cards de Estatísticas */}
+      {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="hover-scale">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total de Itens</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalItems}</p>
+        <Card className="card-elevated">
+          <CardContent className="p-5 md:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Total de Itens</p>
+                <p className="font-display text-3xl font-bold mt-1.5 text-foreground tabular-nums">{stats.totalItems}</p>
+                <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Activity className="w-3 h-3" />
+                  Todos os estoques
+                </p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Package className="w-6 h-6 text-blue-600" />
+              <div className="w-11 h-11 rounded-xl bg-info/10 text-info flex items-center justify-center shrink-0">
+                <Package className="w-5 h-5" />
               </div>
-            </div>
-            <div className="mt-4 flex items-center text-xs text-gray-600">
-              <Activity className="w-3 h-3 mr-1" />
-              Todos os estoques
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover-scale">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Baixo Estoque</p>
-                <p className="text-2xl font-bold text-red-600">{stats.lowStockCount}</p>
+        <Card className="card-elevated">
+          <CardContent className="p-5 md:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Baixo Estoque</p>
+                <p className="font-display text-3xl font-bold mt-1.5 text-destructive tabular-nums">{stats.lowStockCount}</p>
+                <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1.5">
+                  <AlertTriangle className="w-3 h-3" />
+                  Requer atenção
+                </p>
               </div>
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div className="w-11 h-11 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
               </div>
-            </div>
-            <div className="mt-4 flex items-center text-xs text-gray-600">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              Requer atenção
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover-scale">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Movimentações</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.recentMovements}</p>
+        <Card className="card-elevated">
+          <CardContent className="p-5 md:p-6">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">Movimentações</p>
+                <p className="font-display text-3xl font-bold mt-1.5 text-success tabular-nums">{stats.recentMovements}</p>
+                <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Calendar className="w-3 h-3" />
+                  Últimos 7 dias
+                </p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <ShoppingCart className="w-6 h-6 text-purple-600" />
+              <div className="w-11 h-11 rounded-xl bg-success/10 text-success flex items-center justify-center shrink-0">
+                <ShoppingCart className="w-5 h-5" />
               </div>
-            </div>
-            <div className="mt-4 flex items-center text-xs text-gray-600">
-              <Calendar className="w-3 h-3 mr-1" />
-              Últimos 7 dias
             </div>
           </CardContent>
         </Card>
@@ -366,7 +378,7 @@ export function Dashboard() {
       {!isMobile && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Carnes Mais Utilizadas */}
-        <Card className="shadow-lg">
+        <Card className="card-elevated">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Snowflake className="w-5 h-5 text-blue-500" />
@@ -416,10 +428,10 @@ export function Dashboard() {
         </Card>
 
         {/* Movimentações dos Últimos 7 Dias */}
-        <Card className="shadow-lg">
+        <Card className="card-elevated">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-green-500" />
+              <Activity className="w-5 h-5 text-success" />
               Movimentações (7 dias)
             </CardTitle>
             <CardDescription>
@@ -470,7 +482,7 @@ export function Dashboard() {
         <Card className="lg:col-span-2 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-orange-500" />
+              <TrendingUp className="w-5 h-5 text-warning" />
               Itens Mais Movimentados
             </CardTitle>
             <CardDescription>
@@ -481,14 +493,14 @@ export function Dashboard() {
             {topMovedItems.length > 0 ? (
               <div className="space-y-4">
                 {topMovedItems.map((item: any, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted/40 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">
                         {index + 1}
                       </div>
                       <div>
                         <p className="font-medium text-sm">{item.nome}</p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-muted-foreground">
                           {item.entradas} entradas • {item.saidas} saídas
                         </p>
                       </div>
@@ -509,10 +521,10 @@ export function Dashboard() {
         </Card>
 
         {/* Resumo por Categoria */}
-        <Card className="shadow-lg">
+        <Card className="card-elevated">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Package className="w-5 h-5 text-indigo-500" />
+              <Package className="w-5 h-5 text-info" />
               Resumo de Categorias
             </CardTitle>
           </CardHeader>
@@ -521,24 +533,24 @@ export function Dashboard() {
               {categoryData.map((category, index) => {
                 const IconComponent = category.icon;
                 return (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/60">
                     <div className="flex items-center gap-3">
-                      <div 
-                        className="w-8 h-8 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: `${category.color}20` }}
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `color-mix(in srgb, ${category.color} 14%, transparent)` }}
                       >
-                        <IconComponent 
-                          className="w-4 h-4" 
+                        <IconComponent
+                          className="w-4 h-4"
                           style={{ color: category.color }}
                         />
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{category.name}</p>
-                        <p className="text-xs text-gray-600">{category.value} itens</p>
+                        <p className="text-sm font-medium text-foreground">{category.name}</p>
+                        <p className="text-xs text-muted-foreground tabular-nums">{category.value} itens</p>
                       </div>
                     </div>
-                    <div 
-                      className="w-2 h-8 rounded-full"
+                    <div
+                      className="w-1.5 h-9 rounded-full"
                       style={{ backgroundColor: category.color }}
                     />
                   </div>
@@ -552,13 +564,13 @@ export function Dashboard() {
 
       {/* Alertas de Baixo Estoque */}
       {stats.lowStockCount > 0 && (
-        <Card className="shadow-lg border-l-4 border-l-red-500 bg-red-50/50">
+        <Card className="card-elevated border-l-4 border-l-destructive bg-destructive/5">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-700">
+            <CardTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="w-5 h-5" />
               Alertas de Baixo Estoque ({stats.lowStockCount} itens)
             </CardTitle>
-            <CardDescription className="text-red-600">
+            <CardDescription className="text-destructive">
               Itens que precisam de reposição urgente
             </CardDescription>
           </CardHeader>
@@ -569,11 +581,11 @@ export function Dashboard() {
                 ...estoqueSecoItems.filter(item => item.quantidade <= (item.minimo || 5)).slice(0, 3),
                 ...bebidasItems.filter(item => item.quantidade <= (item.minimo || 20)).slice(0, 3)
               ].map((item, index) => (
-                <div key={index} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-red-200">
-                  <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <div key={index} className="flex items-center gap-3 p-3 bg-card rounded-lg border border-destructive/30">
+                  <AlertTriangle className="w-4 h-4 text-destructive flex-shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate">{item.nome}</p>
-                    <p className="text-xs text-red-600">
+                    <p className="text-sm font-medium truncate text-foreground">{item.nome}</p>
+                    <p className="text-xs text-destructive tabular-nums">
                       {item.quantidade} / {item.minimo || 5} mín.
                     </p>
                   </div>

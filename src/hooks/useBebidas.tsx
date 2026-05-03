@@ -29,7 +29,7 @@ export function useBebidas() {
   const [showQRGenerator, setShowQRGenerator] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<BebidasItem | null>(null);
   const { user } = useAuth();
-  const { selectedUnit } = useUnit();
+  const { selectedUnit, accessibleUnits } = useUnit();
   const { generateQRCodeData } = useQRCodeGenerator();
   const mountedRef = useRef(true);
   const loggedRef = useRef(false);
@@ -37,24 +37,31 @@ export function useBebidas() {
 
   const fetchItems = useCallback(async () => {
     if (!user || !mountedRef.current || pendingOperationRef.current) return;
-    
+
     if (!loggedRef.current) {
       console.log('=== FETCH INICIAL BEBIDAS ===');
       loggedRef.current = true;
     }
-    
+
+    if (accessibleUnits.length === 0) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      
-      // Buscar dados do Supabase
+
       let query = supabase
         .from('bebidas_items')
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Filtrar por unidade selecionada (obrigatório)
-      if (selectedUnit) {
+      // Defesa em profundidade — bebidas usa unidade_item (text).
+      if (selectedUnit && accessibleUnits.includes(selectedUnit)) {
         query = query.eq('unidade_item', selectedUnit);
+      } else {
+        query = query.in('unidade_item', accessibleUnits);
       }
 
       const { data, error } = await query;
@@ -84,15 +91,15 @@ export function useBebidas() {
         setLoading(false);
       }
     }
-  }, [user, selectedUnit]);
+  }, [user, selectedUnit, accessibleUnits]);
 
   useEffect(() => {
-    if (user && selectedUnit) {
+    if (user) {
       fetchItems();
     } else {
       setLoading(false);
     }
-  }, [user, selectedUnit, fetchItems]);
+  }, [user, fetchItems]);
 
   useEffect(() => {
     return () => {
@@ -107,7 +114,23 @@ export function useBebidas() {
   }, []);
 
   const addItem = async (newItem: Omit<BebidasItem, 'id'> & { unidade_item?: 'juazeiro_norte' | 'fortaleza' }) => {
-    if (!user || pendingOperationRef.current || !selectedUnit) return;
+    if (!user || pendingOperationRef.current) return;
+
+    const unidadeAlvo =
+      newItem.unidade_item && accessibleUnits.includes(newItem.unidade_item)
+        ? newItem.unidade_item
+        : selectedUnit && accessibleUnits.includes(selectedUnit)
+        ? selectedUnit
+        : accessibleUnits[0];
+
+    if (!unidadeAlvo) {
+      toast({
+        title: 'Sem unidade acessível',
+        description: 'Você não tem permissão em nenhuma unidade.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     pendingOperationRef.current = true;
 
@@ -135,7 +158,7 @@ export function useBebidas() {
         temperatura_ideal: newItem.temperatura_ideal || null,
         fornecedor: newItem.fornecedor?.trim() || null,
         observacoes: newItem.observacoes?.trim() || null,
-        unidade_item: selectedUnit, // Usar a unidade selecionada do contexto
+        unidade_item: unidadeAlvo,
         minimo: newItem.minimo || 10,
         preco_unitario: newItem.preco_unitario || null,
         // Campos ABC

@@ -28,28 +28,35 @@ export function useEstoqueSecoData() {
   const [showQRGenerator, setShowQRGenerator] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<EstoqueSecoItem | null>(null);
   const { user } = useAuth();
-  const { selectedUnit } = useUnit();
+  const { selectedUnit, accessibleUnits } = useUnit();
   const { generateQRCodeData } = useQRCodeGenerator();
   const loggedRef = useRef(false);
 
   const fetchItems = useCallback(async () => {
     if (!user) return;
-    
-    // Log apenas uma vez por sessão
+
     if (!loggedRef.current) {
       console.log('=== FETCH INICIAL DO ESTOQUE SECO ===');
       loggedRef.current = true;
     }
-    
+
+    if (accessibleUnits.length === 0) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       let query = supabase
         .from('estoque_seco_items')
         .select('*')
         .order('nome');
 
-      // Filtrar por unidade selecionada
-      if (selectedUnit) {
+      // Defesa em profundidade: respeita accessibleUnits.
+      if (selectedUnit && accessibleUnits.includes(selectedUnit)) {
         query = query.eq('unidade', selectedUnit);
+      } else {
+        query = query.in('unidade', accessibleUnits);
       }
 
       const { data, error } = await query;
@@ -73,10 +80,26 @@ export function useEstoqueSecoData() {
     } finally {
       setLoading(false);
     }
-  }, [user, selectedUnit]);
+  }, [user, selectedUnit, accessibleUnits]);
 
   const addItem = async (newItem: Omit<EstoqueSecoItem, 'id'> & { unidade_item?: 'juazeiro_norte' | 'fortaleza' }) => {
-    if (!user || !selectedUnit) return;
+    if (!user) return;
+
+    const unidadeAlvo =
+      newItem.unidade_item && accessibleUnits.includes(newItem.unidade_item)
+        ? newItem.unidade_item
+        : selectedUnit && accessibleUnits.includes(selectedUnit)
+        ? selectedUnit
+        : accessibleUnits[0];
+
+    if (!unidadeAlvo) {
+      toast({
+        title: 'Sem unidade acessível',
+        description: 'Você não tem permissão em nenhuma unidade para adicionar.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     try {
       console.log('=== ADICIONANDO ITEM ESTOQUE SECO ===');
@@ -93,7 +116,7 @@ export function useEstoqueSecoData() {
         fornecedor: newItem.fornecedor,
         observacoes: newItem.observacoes,
         user_id: user.id,
-        unidade: selectedUnit, // Usar a unidade selecionada do contexto
+        unidade: unidadeAlvo,
         // Campos ABC
         unit_cost: (newItem as any).unit_cost,
         annual_demand: (newItem as any).annual_demand,
@@ -234,10 +257,12 @@ export function useEstoqueSecoData() {
   };
 
   useEffect(() => {
-    if (user && selectedUnit) {
+    if (user) {
       fetchItems();
+    } else {
+      setLoading(false);
     }
-  }, [user, selectedUnit, fetchItems]);
+  }, [user, fetchItems]);
 
   return {
     items,

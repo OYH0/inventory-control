@@ -146,7 +146,7 @@ export function CamaraFriaAddDialog({
             aria-describedby={!newItem.nome.trim() ? 'nome-error' : undefined}
           />
           {!newItem.nome.trim() && (
-            <p id="nome-error" className="text-xs text-red-500" role="alert">
+            <p id="nome-error" className="text-xs text-destructive" role="alert">
               Nome é obrigatório
             </p>
           )}
@@ -164,7 +164,7 @@ export function CamaraFriaAddDialog({
             onChange={handleQuantidadeChange}
             aria-describedby="quantidade-help"
           />
-          <p id="quantidade-help" className="text-xs text-gray-500">
+          <p id="quantidade-help" className="text-xs text-muted-foreground">
             Você pode adicionar com quantidade zero para registrar o item no estoque
           </p>
         </div>
@@ -207,7 +207,7 @@ export function CamaraFriaAddDialog({
             </SelectContent>
           </Select>
           {!newItem.categoria && (
-            <p id="categoria-error" className="text-xs text-red-500" role="alert">
+            <p id="categoria-error" className="text-xs text-destructive" role="alert">
               Categoria é obrigatória
             </p>
           )}
@@ -225,7 +225,7 @@ export function CamaraFriaAddDialog({
             onChange={handleMinimoChange}
             aria-describedby="minimo-help"
           />
-          <p id="minimo-help" className="text-xs text-gray-500">
+          <p id="minimo-help" className="text-xs text-muted-foreground">
             Quando o estoque atingir esta quantidade, será exibido um alerta
           </p>
         </div>
@@ -240,7 +240,7 @@ export function CamaraFriaAddDialog({
             aria-describedby="validade-help"
             className="cursor-pointer"
           />
-          <p id="validade-help" className="text-xs text-gray-500">
+          <p id="validade-help" className="text-xs text-muted-foreground">
             Importante para alertas de vencimento automáticos
           </p>
         </div>
@@ -269,7 +269,7 @@ export function CamaraFriaAddDialog({
         <Collapsible
           open={abcSectionOpen}
           onOpenChange={setAbcSectionOpen}
-          className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50/50"
+          className="border-2 border-blue-200 rounded-lg p-4 bg-info/10/50"
         >
           <CollapsibleTrigger asChild>
             <Button
@@ -278,13 +278,13 @@ export function CamaraFriaAddDialog({
               type="button"
             >
               <div className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-blue-600" />
+                <BarChart3 className="h-5 w-5 text-info" />
                 <span className="font-semibold text-blue-900">
                   📊 Dados para Análise ABC (Opcional)
                 </span>
               </div>
               <ChevronDown
-                className={`h-5 w-5 text-blue-600 transition-transform ${
+                className={`h-5 w-5 text-info transition-transform ${
                   abcSectionOpen ? 'rotate-180' : ''
                 }`}
               />
@@ -292,7 +292,7 @@ export function CamaraFriaAddDialog({
           </CollapsibleTrigger>
           
           <CollapsibleContent className="space-y-4 mt-4">
-            <div className="bg-blue-100 border border-blue-300 rounded-md p-3 mb-4">
+            <div className="bg-info/15 border border-blue-300 rounded-md p-3 mb-4">
               <p className="text-sm text-blue-900">
                 <strong>💡 Dica:</strong> Preencha estes campos para ativar a <strong>Análise ABC</strong> automática,
                 que classifica produtos por importância e sugere estratégias de estoque (EOQ, ponto de reordenamento, etc).
@@ -305,7 +305,7 @@ export function CamaraFriaAddDialog({
                   <Label htmlFor="unit_cost">Custo Unitário (R$)</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                      <Info className="h-4 w-4 text-info cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>Preço de compra de uma unidade deste produto. Usado para calcular o valor total de consumo anual.</p>
@@ -320,7 +320,7 @@ export function CamaraFriaAddDialog({
                   placeholder="Ex: 25.50"
                   value={newItem.unit_cost || ''}
                   onChange={(e) => setNewItem({...newItem, unit_cost: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -329,7 +329,7 @@ export function CamaraFriaAddDialog({
                   <Label htmlFor="annual_demand">Demanda Anual (unidades/ano)</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                      <Info className="h-4 w-4 text-info cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>Quantidade estimada que você vende/usa por ano. Essencial para classificação ABC e cálculo de EOQ.</p>
@@ -343,7 +343,7 @@ export function CamaraFriaAddDialog({
                   placeholder="Ex: 1200"
                   value={newItem.annual_demand || ''}
                   onChange={(e) => setNewItem({...newItem, annual_demand: parseInt(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -352,7 +352,7 @@ export function CamaraFriaAddDialog({
                   <Label htmlFor="ordering_cost">Custo de Pedido (R$)</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                      <Info className="h-4 w-4 text-info cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>Custo fixo para fazer um pedido (frete, processamento, etc). Padrão sugerido: R$ 100,00</p>
@@ -367,7 +367,7 @@ export function CamaraFriaAddDialog({
                   placeholder="Ex: 100.00 (padrão sugerido)"
                   value={newItem.ordering_cost || ''}
                   onChange={(e) => setNewItem({...newItem, ordering_cost: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -376,7 +376,7 @@ export function CamaraFriaAddDialog({
                   <Label htmlFor="carrying_cost_percentage">% Custo de Manutenção</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                      <Info className="h-4 w-4 text-info cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>Percentual do custo para manter produto em estoque (energia, espaço, etc). Padrão: 25%</p>
@@ -392,7 +392,7 @@ export function CamaraFriaAddDialog({
                   placeholder="Ex: 25 (padrão sugerido)"
                   value={newItem.carrying_cost_percentage || ''}
                   onChange={(e) => setNewItem({...newItem, carrying_cost_percentage: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -401,7 +401,7 @@ export function CamaraFriaAddDialog({
                   <Label htmlFor="lead_time_days">Lead Time (dias)</Label>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Info className="h-4 w-4 text-blue-500 cursor-help" />
+                      <Info className="h-4 w-4 text-info cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>Tempo entre fazer o pedido e receber o produto. Usado para calcular ponto de reordenamento.</p>
@@ -415,12 +415,12 @@ export function CamaraFriaAddDialog({
                   placeholder="Ex: 7"
                   value={newItem.lead_time_days || ''}
                   onChange={(e) => setNewItem({...newItem, lead_time_days: parseInt(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
             </TooltipProvider>
 
-            <div className="bg-green-100 border border-green-300 rounded-md p-3 mt-4">
+            <div className="bg-success/15 border border-green-300 rounded-md p-3 mt-4">
               <p className="text-sm text-green-900">
                 ✅ Após salvar, vá em <strong>"Análise ABC"</strong> no menu e clique em <strong>"Classificar Agora"</strong>
                 para ver a categoria do produto (A, B ou C) e recomendações automáticas!
@@ -437,7 +437,7 @@ export function CamaraFriaAddDialog({
         </Button>
         <Button 
           onClick={handleAddItem} 
-          className="bg-blue-500 hover:bg-blue-600"
+          className="bg-info hover:bg-info"
           disabled={!isFormValid}
           aria-describedby={!isFormValid ? 'button-help' : undefined}
         >

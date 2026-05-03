@@ -172,11 +172,11 @@ export function ExpiryAlertSettings() {
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="animate-pulse">
-              <div className="h-5 bg-gray-200 rounded w-48" />
-              <div className="h-4 bg-gray-200 rounded w-64 mt-2" />
+              <div className="h-5 bg-muted rounded w-48" />
+              <div className="h-4 bg-muted rounded w-64 mt-2" />
             </CardHeader>
             <CardContent>
-              <div className="h-10 bg-gray-200 rounded animate-pulse" />
+              <div className="h-10 bg-muted rounded animate-pulse" />
             </CardContent>
           </Card>
         ))}

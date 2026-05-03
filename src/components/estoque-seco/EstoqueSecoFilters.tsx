@@ -59,7 +59,7 @@ export function EstoqueSecoFilters({
   return (
     <div className={`flex gap-4 w-full px-1 ${isMobile ? 'flex-col' : 'flex-row'}`}>
       <div className="relative flex-1 min-w-0">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 pointer-events-none" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
         <Input
           type="text"
           placeholder="Buscar itens..."
@@ -76,7 +76,7 @@ export function EstoqueSecoFilters({
           <SelectTrigger className={`${isMobile ? 'text-sm' : ''} w-full border-2 shadow-sm mobile-optimized`}>
             <SelectValue placeholder="Filtrar por categoria" />
           </SelectTrigger>
-          <SelectContent className="z-50 bg-white border shadow-lg max-h-60 overflow-y-auto">
+          <SelectContent className="z-50 bg-popover border shadow-lg max-h-60 overflow-y-auto">
             {categories && categories.length > 0 ? categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}

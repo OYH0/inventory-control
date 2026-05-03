@@ -48,7 +48,7 @@ export const SwipeHint: React.FC<SwipeHintProps> = ({
           </div>
         )}
         {canSwipeLeft && canSwipeRight && (
-          <span className="text-gray-300">|</span>
+          <span className="text-muted-foreground/50">|</span>
         )}
         {canSwipeRight && (
           <div className="flex items-center gap-1">

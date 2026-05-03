@@ -62,12 +62,12 @@ export function ExpiryAlertDashboard() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
-          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+          <div className="h-9 w-9 bg-muted rounded-lg animate-pulse" />
+          <div className="h-6 w-48 bg-muted rounded animate-pulse" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-48 bg-gray-200 rounded-lg animate-pulse" />
+            <div key={i} className="h-48 bg-muted rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -76,21 +76,19 @@ export function ExpiryAlertDashboard() {
 
   return (
     <div className="space-y-6 animate-enter">
-      {/* Header Section - Same as Câmara Fria */}
+      {/* Header */}
       <div className="flex flex-col space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-orange-500 text-white p-2 rounded-lg">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-                Alertas de Vencimento
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Monitore produtos próximos da data de vencimento
-              </p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-warning/10 text-warning flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+              Alertas de Vencimento
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Monitore produtos próximos da data de vencimento
+            </p>
           </div>
         </div>
 
@@ -119,10 +117,10 @@ export function ExpiryAlertDashboard() {
               placeholder="Buscar itens..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-4 py-2 pl-10 border border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
             <svg
-              className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+              className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -140,7 +138,7 @@ export function ExpiryAlertDashboard() {
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           >
             {priorities.map((priority) => (
               <option key={priority} value={priority}>
@@ -155,11 +153,11 @@ export function ExpiryAlertDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredAlerts.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-            <AlertTriangle className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               Nenhum alerta encontrado
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {searchTerm || filterPriority !== 'Todos'
                 ? 'Tente ajustar os filtros'
                 : 'Não há alertas de vencimento no momento'}
@@ -188,7 +186,7 @@ export function ExpiryAlertDashboard() {
           >
             Anterior
           </Button>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted-foreground">
             Página {page} de {totalPages}
           </span>
           <Button

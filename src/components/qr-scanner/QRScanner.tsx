@@ -200,7 +200,7 @@ export function QRScanner({ onClose, onSuccess }: QRScannerProps) {
                   <Button 
                     onClick={startCamera} 
                     variant="outline"
-                    className="border-white text-gray-900 bg-white hover:bg-gray-100 focus:bg-gray-100"
+                    className="border-white text-foreground bg-white hover:bg-muted focus:bg-muted"
                   >
                     Tentar Novamente
                   </Button>
@@ -224,7 +224,7 @@ export function QRScanner({ onClose, onSuccess }: QRScannerProps) {
           <form onSubmit={handleManualSubmit} className="space-y-2">
             <input
               type="text"
-              className="w-full rounded border px-3 py-2 bg-background text-base text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded border px-3 py-2 bg-background text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Digite o código manualmente"
               value={manualCode}
               disabled={isProcessing || manualProcessing}
@@ -252,7 +252,7 @@ export function QRScanner({ onClose, onSuccess }: QRScannerProps) {
             )}
           </form>
 
-          <div className="text-xs text-gray-500 text-center">
+          <div className="text-xs text-muted-foreground text-center">
             Posicione o QR Code na frente da câmera para escaneamento automático<br />
             ou insira o código manualmente.
           </div>

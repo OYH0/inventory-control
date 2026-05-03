@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Minus, Plus, Check, X, Trash2, Edit3 } from 'lucide-react';
+import { Minus, Plus, Check, X, Trash2, Edit3, AlertTriangle } from 'lucide-react';
 import { DescartaveisItem } from '@/hooks/useDescartaveisData';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AdminGuard } from '@/components/AdminGuard';
+import { cn } from '@/lib/utils';
 
 interface DescartaveisItemCardProps {
   item: DescartaveisItem;
@@ -13,22 +14,15 @@ interface DescartaveisItemCardProps {
   onDelete: (id: string) => void;
 }
 
-function getUnidadeLabel(unidade: string | undefined) {
-  if (!unidade || unidade === 'juazeiro_norte') return '';
-  switch (unidade) {
-    case 'fortaleza':
-      return 'Fortaleza';
-    default:
-      return unidade;
-  }
-}
-
-function getUnidadeFisicaLabel(unidade: string | undefined) {
-  if (!unidade) return '';
-  if (unidade === 'fortaleza') return 'Fortaleza';
-  if (unidade === 'juazeiro_norte') return 'Juazeiro do Norte';
-  return unidade;
-}
+const CATEGORY_COLORS: Record<string, string> = {
+  'Pratos e Talheres': 'bg-info/10 text-info border-info/20',
+  'Copos e Bebidas': 'bg-success/10 text-success border-success/20',
+  'Embalagens': 'bg-warning/10 text-warning border-warning/20',
+  'Guardanapos e Toalhas': 'bg-muted text-foreground/80 border-border',
+  'Sacolas e Sacos': 'bg-warning/10 text-warning border-warning/20',
+  'Recipientes': 'bg-info/10 text-info border-info/20',
+  'Descartáveis Diversos': 'bg-muted text-foreground/80 border-border',
+};
 
 export function DescartaveisItemCard({ item, onUpdateQuantity, onDelete }: DescartaveisItemCardProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -55,152 +49,103 @@ export function DescartaveisItemCard({ item, onUpdateQuantity, onDelete }: Desca
   };
 
   const isLowStock = item.minimo && item.quantidade <= item.minimo;
-
-  const getCategoryColor = (categoria: string) => {
-    const colors = {
-      'Pratos': 'bg-blue-100 text-blue-800',
-      'Copos': 'bg-green-100 text-green-800',
-      'Talheres': 'bg-purple-100 text-purple-800',
-      'Guardanapos': 'bg-pink-100 text-pink-800',
-      'Embalagens': 'bg-orange-100 text-orange-800'
-    };
-    return colors[categoria as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-  };
+  const categoryClass = CATEGORY_COLORS[item.categoria] || 'bg-muted text-foreground/80 border-border';
 
   return (
-    <Card className={`transition-all duration-200 hover:shadow-md ${isLowStock ? 'ring-2 ring-red-300' : ''}`}>
-      <CardHeader className={`pb-3 ${isMobile ? 'p-4' : ''}`}>
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0 pr-2">
-            <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900 truncate`}>
-              {item.nome}
-            </CardTitle>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <Badge 
-                variant="secondary" 
-                className={`${getCategoryColor(item.categoria)} text-xs`}
-              >
-                {item.categoria}
+    <Card className={cn('card-elevated relative overflow-hidden', isLowStock && 'ring-1 ring-destructive/30')}>
+      {isLowStock && <div className="absolute top-0 left-0 right-0 h-0.5 bg-destructive" />}
+
+      <CardHeader className="pb-3">
+        <div className="min-w-0">
+          <CardTitle className={cn('font-display font-semibold text-foreground truncate', isMobile ? 'text-base' : 'text-lg')}>
+            {item.nome}
+          </CardTitle>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            <Badge variant="outline" className={cn('text-[11px] font-medium', categoryClass)}>
+              {item.categoria}
+            </Badge>
+            {item.unidade_item && (
+              <Badge variant="outline" className="text-[11px] font-medium gap-1">
+                {item.unidade_item === 'juazeiro_norte' ? '🏜️ JN' : '🌊 FOR'}
               </Badge>
-              {item.unidade_item && (
-                <Badge variant="outline" className="text-xs">
-                  {item.unidade_item === 'juazeiro_norte' ? 'JN' : 'FOR'}
-                </Badge>
-              )}
-              {isLowStock && (
-                <Badge variant="destructive" className="text-xs">
-                  Baixo Estoque
-                </Badge>
-              )}
-            </div>
+            )}
+            {isLowStock && (
+              <Badge variant="destructive" className="text-[11px] gap-1">
+                <AlertTriangle className="w-2.5 h-2.5" />
+                Baixo
+              </Badge>
+            )}
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className={`pt-0 ${isMobile ? 'p-4 pt-0' : ''}`}>
-        <div className="space-y-3">
-          {/* Quantidade atual */}
-          <div className="flex items-center justify-between">
-            <span className={`font-medium text-gray-700 ${isMobile ? 'text-sm' : ''}`}>
-              Quantidade:
-            </span>
-            <span className={`font-bold ${isLowStock ? 'text-red-600' : 'text-green-600'} ${isMobile ? 'text-sm' : ''}`}>
-              {isEditing ? editValue : item.quantidade} {getUnidadeFisicaLabel(item.unidade)}
-            </span>
+      <CardContent className="pt-0 space-y-4">
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+              Quantidade
+            </p>
+            <p className={cn(
+              'font-display font-bold tabular-nums leading-none mt-1',
+              isMobile ? 'text-2xl' : 'text-3xl',
+              isLowStock ? 'text-destructive' : 'text-foreground'
+            )}>
+              {isEditing ? editValue : item.quantidade}
+              <span className="text-sm font-medium text-muted-foreground ml-1">{item.unidade}</span>
+            </p>
           </div>
-
-          {/* Estoque mínimo */}
-          {item.minimo && (
-            <div className="flex items-center justify-between">
-              <span className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                Mínimo: {item.minimo} {getUnidadeFisicaLabel(item.unidade)}
-              </span>
+          {item.minimo !== undefined && item.minimo !== null && (
+            <div className="text-right">
+              <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+                Mínimo
+              </p>
+              <p className="text-sm font-medium tabular-nums text-foreground/80 mt-1">{item.minimo}</p>
             </div>
           )}
-
-          {/* Observações */}
-          {item.observacoes && (
-            <div className="flex items-start justify-between">
-              <span className={`text-gray-500 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                Obs: {item.observacoes}
-              </span>
-            </div>
-          )}
-
-          {/* Controles de edição */}
-          <AdminGuard fallback={
-            <div className="text-center py-2">
-              <span className="text-xs text-gray-500">Apenas administradores podem editar</span>
-            </div>
-          }>
-            {isEditing ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleUpdateEdit(-1)}
-                    disabled={editValue === 0}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="mx-3 font-bold text-lg min-w-[3rem] text-center">
-                    {editValue}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleUpdateEdit(1)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleCancelEdit}
-                    className="flex-1"
-                  >
-                    <X className="h-4 w-4 mr-1" />
-                    Cancelar
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleConfirmChange}
-                    className="flex-1 bg-green-500 hover:bg-green-600"
-                  >
-                    <Check className="h-4 w-4 mr-1" />
-                    Confirmar
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleStartEdit}
-                  className="flex-1"
-                >
-                  <Edit3 className="h-4 w-4 mr-1" />
-                  Editar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onDelete(item.id)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </AdminGuard>
         </div>
+
+        <AdminGuard fallback={
+          <p className="text-center text-xs text-muted-foreground py-2 border-t border-border/60">
+            Apenas administradores podem editar
+          </p>
+        }>
+          {isEditing ? (
+            <div className="space-y-2 pt-2 border-t border-border/60">
+              <div className="flex items-center justify-center gap-3">
+                <Button size="icon" variant="outline" onClick={() => handleUpdateEdit(-1)} disabled={editValue === 0} className="h-9 w-9 rounded-lg">
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="font-display font-bold text-2xl min-w-[3rem] text-center tabular-nums">{editValue}</span>
+                <Button size="icon" variant="outline" onClick={() => handleUpdateEdit(1)} className="h-9 w-9 rounded-lg">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button size="sm" variant="outline" onClick={handleCancelEdit}>
+                  <X className="h-4 w-4 mr-1.5" />Cancelar
+                </Button>
+                <Button size="sm" onClick={handleConfirmChange} className="bg-success hover:bg-success/90 text-success-foreground">
+                  <Check className="h-4 w-4 mr-1.5" />Confirmar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-2 pt-2 border-t border-border/60">
+              <Button size="sm" variant="outline" onClick={handleStartEdit} className="flex-1">
+                <Edit3 className="h-4 w-4 mr-1.5" />Editar
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() => onDelete(item.id)}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/30"
+                title="Remover"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </AdminGuard>
       </CardContent>
     </Card>
   );

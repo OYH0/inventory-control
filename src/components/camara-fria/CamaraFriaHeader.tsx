@@ -61,7 +61,7 @@ export function CamaraFriaHeader({
       <Button 
         variant="outline" 
         size={isMobile ? "sm" : "default"}
-        className="border-gray-300"
+        
         onClick={handlePrintPDF}
       >
         <FileText className="w-4 h-4 mr-1 md:mr-2" />
@@ -73,7 +73,7 @@ export function CamaraFriaHeader({
           <Button 
             variant="outline" 
             size={isMobile ? "sm" : "default"}
-            className="border-gray-300"
+            
           >
             <History className="w-4 h-4 mr-1 md:mr-2" />
             <span className={isMobile ? "text-xs" : "text-sm"}>Histórico</span>
@@ -90,7 +90,7 @@ export function CamaraFriaHeader({
           <DialogTrigger asChild>
             <Button 
               size={isMobile ? "sm" : "default"}
-              className="bg-blue-500 hover:bg-blue-600"
+              className="bg-warm-gradient text-white border-0 shadow-sm hover:shadow-md"
             >
               <Plus className="w-4 h-4 mr-1 md:mr-2" />
               <span className={isMobile ? "text-xs" : "text-sm"}>Nova Carne</span>

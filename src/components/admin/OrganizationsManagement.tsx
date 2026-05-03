@@ -114,9 +114,9 @@ export default function OrganizationsManagement() {
             {organizations.filter(o => o.is_active && !o.deleted_at).length}
           </p>
         </div>
-        <div className="bg-gray-500/10 rounded-lg p-4">
+        <div className="bg-muted/400/10 rounded-lg p-4">
           <p className="text-sm text-muted-foreground">Inativas</p>
-          <p className="text-2xl font-bold text-gray-600">
+          <p className="text-2xl font-bold text-muted-foreground">
             {organizations.filter(o => !o.is_active && !o.deleted_at).length}
           </p>
         </div>

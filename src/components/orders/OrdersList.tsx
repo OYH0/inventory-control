@@ -249,7 +249,7 @@ export function OrdersList({ filters }: OrdersListProps) {
                           <Button 
                             variant="ghost" 
                             size="sm"
-                            className="h-8 w-8 p-0 hover:bg-accent"
+                            className="h-8 w-8 p-0 hover:bg-success"
                           >
                             <span className="sr-only">Abrir menu</span>
                             <MoreHorizontal className="h-4 w-4" />

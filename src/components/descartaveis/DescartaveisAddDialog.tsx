@@ -157,7 +157,7 @@ export function DescartaveisAddDialog({
             onChange={handleQuantidadeChange}
             aria-describedby="quantidade-help"
           />
-          <p id="quantidade-help" className="text-xs text-gray-500">
+          <p id="quantidade-help" className="text-xs text-muted-foreground">
             Você pode adicionar com quantidade zero para registrar o item no estoque
           </p>
         </div>
@@ -218,7 +218,7 @@ export function DescartaveisAddDialog({
             onChange={handleMinimoChange}
             aria-describedby="minimo-help"
           />
-          <p id="minimo-help" className="text-xs text-gray-500">
+          <p id="minimo-help" className="text-xs text-muted-foreground">
             Quando o estoque atingir esta quantidade, será exibido um alerta
           </p>
         </div>
@@ -316,7 +316,7 @@ export function DescartaveisAddDialog({
                   placeholder="Ex: 0.50"
                   value={newItem.unit_cost || ''}
                   onChange={(e) => setNewItem({...newItem, unit_cost: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -339,7 +339,7 @@ export function DescartaveisAddDialog({
                   placeholder="Ex: 10000"
                   value={newItem.annual_demand || ''}
                   onChange={(e) => setNewItem({...newItem, annual_demand: parseInt(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -363,7 +363,7 @@ export function DescartaveisAddDialog({
                   placeholder="Ex: 60.00 (padrão sugerido)"
                   value={newItem.ordering_cost || ''}
                   onChange={(e) => setNewItem({...newItem, ordering_cost: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -388,7 +388,7 @@ export function DescartaveisAddDialog({
                   placeholder="Ex: 18 (padrão sugerido)"
                   value={newItem.carrying_cost_percentage || ''}
                   onChange={(e) => setNewItem({...newItem, carrying_cost_percentage: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -411,7 +411,7 @@ export function DescartaveisAddDialog({
                   placeholder="Ex: 3"
                   value={newItem.lead_time_days || ''}
                   onChange={(e) => setNewItem({...newItem, lead_time_days: parseInt(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
             </TooltipProvider>

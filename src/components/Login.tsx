@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Flame, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { ThemeToggle } from '@/components/ThemeProvider';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -13,13 +14,12 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const { signIn, signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       if (isSignUp) {
         await signUp(email, password, fullName);
@@ -32,145 +32,139 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-[100svh] bg-gradient-to-br from-background via-background to-muted/30 flex items-center justify-center p-4">
-      {/* Conteúdo centralizado */}
-      <div className="w-full max-w-lg">
-        <div className="text-center mb-8">
-          {/* Logo centralizado */}
-          <div className="mx-auto w-40 h-40 mb-6 flex items-center justify-center">
-            <img 
-              src="/lovable-uploads/802f7946-9f7b-4f8d-a604-5110eaf96fd9.png" 
-              alt="Companhia do Churrasco Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
-          
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            Sistema de Gestão
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            {isSignUp ? 'Crie sua conta para começar' : 'Acesse sua conta'}
-          </p>
-        </div>
+    <div className="min-h-[100svh] relative bg-background overflow-hidden">
+      {/* Backdrop decorativo */}
+      <div className="pointer-events-none absolute inset-0 -z-0">
+        <div className="absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 w-[420px] h-[420px] rounded-full bg-success/15 blur-3xl" />
+      </div>
 
-        <Card className="border-2 shadow-lg">
-          <CardHeader className="text-center pb-4">
-            <h2 className="text-xl font-semibold text-foreground">
-              {isSignUp ? 'Criar conta' : 'Entrar'}
-            </h2>
-          </CardHeader>
-              
-              <CardContent className="px-8 pb-8">
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  {isSignUp && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName" className="text-sm font-semibold flex items-center gap-2">
-                        <User className="w-4 h-4 text-churrasco-orange" />
-                        Nome Completo
-                      </Label>
-                      <Input
-                        id="fullName"
-                        type="text"
-                        placeholder="Seu nome completo"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required={isSignUp}
-                        className="h-12 px-4 transition-all duration-200 rounded-lg"
-                      />
-                    </div>
-                  )}
-                  
+      {/* Toggle tema no canto */}
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+
+      <div className="relative z-10 min-h-[100svh] flex items-center justify-center p-4">
+        <div className="w-full max-w-md animate-enter">
+          {/* Brand */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-warm-gradient shadow-lg mb-5">
+              <Flame className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </div>
+            <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">
+              Companhia do Churrasco
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1.5">
+              {isSignUp ? 'Crie sua conta para continuar' : 'Entre na sua conta para continuar'}
+            </p>
+          </div>
+
+          <Card className="card-elevated border-border/60">
+            <CardContent className="p-6 sm:p-8">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {isSignUp && (
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-semibold flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-churrasco-orange" />
-                      E-mail
+                    <Label htmlFor="fullName" className="flex items-center gap-2 text-sm font-medium">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      Nome completo
                     </Label>
                     <Input
-                      id="email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-12 px-4 transition-all duration-200 rounded-lg"
+                      id="fullName"
+                      type="text"
+                      placeholder="Como você se chama"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={isSignUp}
+                      className="h-11"
                     />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-semibold flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-churrasco-orange" />
-                      Senha
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="h-12 px-4 pr-12 transition-all duration-200 rounded-lg"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-2">
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                    E-mail
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="flex items-center gap-2 text-sm font-medium">
+                    <Lock className="w-4 h-4 text-muted-foreground" />
+                    Senha
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="h-11 pr-11"
+                    />
                     <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full h-12 bg-gradient-to-r from-churrasco-red to-churrasco-orange hover:from-churrasco-red/90 hover:to-churrasco-orange/90 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl border-0 group rounded-lg"
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex={-1}
                     >
-                      {loading ? (
-                        <div className="flex items-center gap-3">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          {isSignUp ? 'Criando conta...' : 'Entrando...'}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          {isSignUp ? (
-                            <>
-                              <User className="w-4 h-4" />
-                              Criar Conta
-                            </>
-                          ) : (
-                            <>
-                              Entrar
-                              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-                
-                <div className="text-center pt-6 mt-6 border-t">
-                  <div className="text-sm text-muted-foreground">
-                    {isSignUp ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
-                    <Button 
-                      variant="link" 
-                      className="text-churrasco-orange hover:text-churrasco-orange/80 p-0 h-auto font-semibold hover:underline transition-colors text-sm"
-                      onClick={() => setIsSignUp(!isSignUp)}
-                    >
-                      {isSignUp ? 'Fazer login' : 'Criar conta'}
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-        </Card>
+
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-11 bg-warm-gradient text-white font-semibold shadow-md hover:shadow-lg transition-shadow group"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {isSignUp ? 'Criando conta...' : 'Entrando...'}
+                    </>
+                  ) : (
+                    <>
+                      {isSignUp ? 'Criar conta' : 'Entrar'}
+                      <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-0.5" />
+                    </>
+                  )}
+                </Button>
+              </form>
+
+              <div className="text-center pt-5 mt-5 border-t border-border/60">
+                <p className="text-sm text-muted-foreground">
+                  {isSignUp ? 'Já tem uma conta?' : 'Ainda não tem uma conta?'}{' '}
+                  <button
+                    type="button"
+                    className="font-semibold text-primary hover:underline focus:outline-none focus-visible:underline"
+                    onClick={() => setIsSignUp(!isSignUp)}
+                  >
+                    {isSignUp ? 'Fazer login' : 'Criar conta'}
+                  </button>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {isSignUp && (
+            <p className="text-xs text-muted-foreground text-center mt-4 px-4 leading-relaxed">
+              Após o cadastro, sua conta ficará aguardando aprovação do administrador
+              antes de acessar o sistema.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

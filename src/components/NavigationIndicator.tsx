@@ -16,34 +16,28 @@ export const NavigationIndicator: React.FC<NavigationIndicatorProps> = ({
   routeLabels = [],
   className,
 }) => {
-  const defaultLabels = [
-    'Dashboard',
-    'Câmara Fria',
-    'Câmara Refrigerada',
-    'Estoque Seco',
-    'Descartáveis',
-    'Configurações',
-  ];
-
-  const labels = routeLabels.length > 0 ? routeLabels : defaultLabels;
+  const labels = routeLabels;
 
   return (
-    <div className={cn('flex items-center justify-center gap-3 relative z-30', className)}>
-      {Array.from({ length: totalRoutes }, (_, index) => (
-        <button
-          key={index}
-          onClick={() => onNavigate(index)}
-          className={cn(
-            'w-3 h-3 rounded-full transition-all duration-300 hover:scale-125 relative z-30',
-            currentIndex === index
-              ? 'bg-churrasco-red scale-125 shadow-lg ring-2 ring-churrasco-red/30'
-              : 'bg-churrasco-brown/40 hover:bg-churrasco-brown/60'
-          )}
-          title={labels[index] || `Aba ${index + 1}`}
-          aria-label={`Navegar para ${labels[index] || `aba ${index + 1}`}`}
-        />
-      ))}
+    <div className={cn('flex items-center justify-center gap-2 relative z-30', className)}>
+      {Array.from({ length: totalRoutes }, (_, index) => {
+        const active = currentIndex === index;
+        return (
+          <button
+            key={index}
+            onClick={() => onNavigate(index)}
+            className={cn(
+              'h-2 rounded-full transition-all duration-300 hover:opacity-80',
+              active
+                ? 'w-6 bg-primary shadow-sm shadow-primary/30'
+                : 'w-2 bg-muted-foreground/25 hover:bg-muted-foreground/50'
+            )}
+            title={labels[index] || `Aba ${index + 1}`}
+            aria-label={`Ir para ${labels[index] || `aba ${index + 1}`}`}
+            aria-current={active ? 'page' : undefined}
+          />
+        );
+      })}
     </div>
   );
 };
-

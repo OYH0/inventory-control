@@ -15,7 +15,7 @@ export function AdminGuard({ children, fallback }: AdminGuardProps) {
   if (loading) {
     return (
       <div className="animate-pulse">
-        <div className="h-10 bg-gray-200 rounded w-32"></div>
+        <div className="h-10 bg-muted rounded w-32"></div>
       </div>
     );
   }

@@ -38,31 +38,28 @@ export function ABCDashboard() {
   const isParetoEfficient = paretoEfficiency >= 75; // 75% ou mais é considerado eficiente
   
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 animate-enter">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Análise ABC de Inventário</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            Análise ABC de Inventário
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Classificação de produtos baseada no Princípio de Pareto (80/20)
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refresh}
-            disabled={isLoading}
-          >
+          <Button variant="outline" size="sm" onClick={refresh} disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
-          
           <Button
             onClick={() => classify()}
             disabled={isClassifying}
             size="sm"
+            className="bg-warm-gradient text-white border-0 shadow-sm"
           >
             <Play className={`h-4 w-4 mr-2 ${isClassifying ? 'animate-pulse' : ''}`} />
             {isClassifying ? 'Classificando...' : 'Classificar Agora'}

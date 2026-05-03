@@ -78,8 +78,8 @@ export function QRCodeGenerator({ qrCodes, onClose, itemName, stockType }: QRCod
           </div>
 
           <div className="space-y-2">
-            <h4 className="font-medium text-gray-900">Cada QR code conterá:</h4>
-            <ul className="text-sm text-gray-600 space-y-1">
+            <h4 className="font-medium text-foreground">Cada QR code conterá:</h4>
+            <ul className="text-sm text-muted-foreground space-y-1">
               <li>• ID único para rastreamento</li>
               <li>• Nome do produto</li>
               <li>• Número do lote</li>
@@ -102,7 +102,7 @@ export function QRCodeGenerator({ qrCodes, onClose, itemName, stockType }: QRCod
             </Button>
           </div>
 
-          <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded">
+          <div className="text-xs text-muted-foreground bg-muted/40 p-3 rounded">
             <strong>Dica:</strong> Cole os QR codes nas embalagens individuais. 
             Ao escanear, o sistema automaticamente removerá 1 unidade do estoque.
           </div>

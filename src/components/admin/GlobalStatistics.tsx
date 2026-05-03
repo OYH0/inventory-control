@@ -72,7 +72,7 @@ export default function GlobalStatistics() {
                   <p className="text-3xl font-bold">{stats.active_orgs}</p>
                   <p className="text-xs text-muted-foreground">de {stats.total_orgs} ativas</p>
                 </div>
-                <TrendingUp className="w-5 h-5 text-green-500" />
+                <TrendingUp className="w-5 h-5 text-success" />
               </div>
               <Progress value={activeOrgPercentage} className="h-2" />
               <p className="text-xs text-muted-foreground">{activeOrgPercentage.toFixed(1)}% ativas</p>
@@ -83,7 +83,7 @@ export default function GlobalStatistics() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Users className="w-4 h-4 text-blue-500" />
+              <Users className="w-4 h-4 text-info" />
               Usuários
             </CardTitle>
           </CardHeader>
@@ -94,7 +94,7 @@ export default function GlobalStatistics() {
                   <p className="text-3xl font-bold">{stats.active_users}</p>
                   <p className="text-xs text-muted-foreground">de {stats.total_users} ativos</p>
                 </div>
-                <Users className="w-5 h-5 text-blue-500" />
+                <Users className="w-5 h-5 text-info" />
               </div>
               <Progress value={activeUserPercentage} className="h-2" />
               <p className="text-xs text-muted-foreground">{activeUserPercentage.toFixed(1)}% ativos</p>
@@ -105,7 +105,7 @@ export default function GlobalStatistics() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Package className="w-4 h-4 text-green-500" />
+              <Package className="w-4 h-4 text-success" />
               Total de Itens
             </CardTitle>
           </CardHeader>
@@ -116,7 +116,7 @@ export default function GlobalStatistics() {
                   <p className="text-3xl font-bold">{totalItems.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">no inventário</p>
                 </div>
-                <Package className="w-5 h-5 text-green-500" />
+                <Package className="w-5 h-5 text-success" />
               </div>
               <p className="text-xs text-muted-foreground">
                 Média: {stats.total_orgs > 0 ? Math.round(totalItems / stats.total_orgs) : 0} por org
@@ -128,7 +128,7 @@ export default function GlobalStatistics() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <ShoppingCart className="w-4 h-4 text-purple-500" />
+              <ShoppingCart className="w-4 h-4 text-info" />
               Pedidos
             </CardTitle>
           </CardHeader>
@@ -139,7 +139,7 @@ export default function GlobalStatistics() {
                   <p className="text-3xl font-bold">{stats.total_orders.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground">total</p>
                 </div>
-                <ShoppingCart className="w-5 h-5 text-purple-500" />
+                <ShoppingCart className="w-5 h-5 text-info" />
               </div>
               <p className="text-xs text-muted-foreground">
                 Média: {stats.total_orgs > 0 ? Math.round(stats.total_orders / stats.total_orgs) : 0} por org
@@ -201,17 +201,17 @@ export default function GlobalStatistics() {
       </Card>
 
       {/* Alertas e Avisos */}
-      <Card className="border-orange-200 bg-orange-50/50">
+      <Card className="card-elevated border-warning/30 bg-warning/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-orange-500" />
+            <AlertTriangle className="w-5 h-5 text-warning" />
             Alertas do Sistema
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {stats.active_orgs < stats.total_orgs && (
             <div className="flex items-start gap-2 text-sm">
-              <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 text-warning mt-0.5" />
               <p>
                 <strong>{stats.total_orgs - stats.active_orgs}</strong> organização(ões) inativa(s)
               </p>
@@ -219,14 +219,14 @@ export default function GlobalStatistics() {
           )}
           {stats.active_users < stats.total_users && (
             <div className="flex items-start gap-2 text-sm">
-              <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5" />
+              <AlertTriangle className="w-4 h-4 text-warning mt-0.5" />
               <p>
                 <strong>{stats.total_users - stats.active_users}</strong> usuário(s) inativo(s)
               </p>
             </div>
           )}
           {stats.active_orgs === stats.total_orgs && stats.active_users === stats.total_users && (
-            <p className="text-sm text-green-600">✓ Nenhum alerta no momento</p>
+            <p className="text-sm text-success">✓ Nenhum alerta no momento</p>
           )}
         </CardContent>
       </Card>

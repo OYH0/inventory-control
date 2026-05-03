@@ -164,7 +164,7 @@ export function BebidasAddDialog({
             onChange={handleQuantidadeChange}
             aria-describedby="quantidade-help"
           />
-          <p id="quantidade-help" className="text-xs text-gray-500">
+          <p id="quantidade-help" className="text-xs text-muted-foreground">
             Você pode adicionar com quantidade zero para registrar o item no estoque
           </p>
         </div>
@@ -227,7 +227,7 @@ export function BebidasAddDialog({
             onChange={handleMinimoChange}
             aria-describedby="minimo-help"
           />
-          <p id="minimo-help" className="text-xs text-gray-500">
+          <p id="minimo-help" className="text-xs text-muted-foreground">
             Quando o estoque atingir esta quantidade, será exibido um alerta
           </p>
         </div>
@@ -270,7 +270,7 @@ export function BebidasAddDialog({
             aria-describedby="validade-help"
             className="cursor-pointer"
           />
-          <p id="validade-help" className="text-xs text-gray-500">
+          <p id="validade-help" className="text-xs text-muted-foreground">
             Importante para alertas de vencimento automáticos
           </p>
         </div>
@@ -340,7 +340,7 @@ export function BebidasAddDialog({
                   placeholder="Ex: 5.00"
                   value={newItem.unit_cost || ''}
                   onChange={(e) => setNewItem({...newItem, unit_cost: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -363,7 +363,7 @@ export function BebidasAddDialog({
                   placeholder="Ex: 3000"
                   value={newItem.annual_demand || ''}
                   onChange={(e) => setNewItem({...newItem, annual_demand: parseInt(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -387,7 +387,7 @@ export function BebidasAddDialog({
                   placeholder="Ex: 50.00 (padrão sugerido)"
                   value={newItem.ordering_cost || ''}
                   onChange={(e) => setNewItem({...newItem, ordering_cost: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -412,7 +412,7 @@ export function BebidasAddDialog({
                   placeholder="Ex: 20 (padrão sugerido)"
                   value={newItem.carrying_cost_percentage || ''}
                   onChange={(e) => setNewItem({...newItem, carrying_cost_percentage: parseFloat(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
 
@@ -435,7 +435,7 @@ export function BebidasAddDialog({
                   placeholder="Ex: 3"
                   value={newItem.lead_time_days || ''}
                   onChange={(e) => setNewItem({...newItem, lead_time_days: parseInt(e.target.value) || undefined})}
-                  className="bg-white"
+                  className="bg-background"
                 />
               </div>
             </TooltipProvider>

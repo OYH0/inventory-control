@@ -37,15 +37,15 @@ export function BebidasHistoryDialog({ historico, loading = false, selectedUnida
 
   return (
     <>
-      <DialogContent className="max-w-2xl bg-white">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <div className={`flex items-center ${isMobile ? 'flex-col gap-2' : 'justify-between'}`}>
             <div className={isMobile ? 'text-center' : ''}>
-              <DialogTitle className="flex items-center gap-2 text-lg text-gray-900">
+              <DialogTitle className="flex items-center gap-2 text-lg text-foreground">
                 <Calendar className="w-4 h-4" />
                 Histórico de Movimentações - Bebidas
               </DialogTitle>
-              <DialogDescription className="text-gray-600">
+              <DialogDescription className="text-muted-foreground">
                 Registro de entradas e saídas do estoque de bebidas
               </DialogDescription>
             </div>
@@ -79,19 +79,19 @@ export function BebidasHistoryDialog({ historico, loading = false, selectedUnida
         <div className="max-h-96 overflow-y-auto space-y-2">
           {loading ? (
             <div className="text-center py-4">
-              <p className="text-gray-500 text-sm">Carregando histórico...</p>
+              <p className="text-muted-foreground text-sm">Carregando histórico...</p>
             </div>
           ) : historico.length === 0 ? (
             <div className="text-center py-8">
-              <Calendar className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-              <p className="text-gray-500 text-sm">Nenhuma movimentação registrada</p>
+              <Calendar className="w-8 h-8 mx-auto mb-2 text-muted-foreground/50" />
+              <p className="text-muted-foreground text-sm">Nenhuma movimentação registrada</p>
             </div>
           ) : (
             historico.map((item) => (
-              <div key={item.id} className="bg-gray-50 rounded p-3 text-sm border border-gray-100">
+              <div key={item.id} className="bg-muted/40 rounded p-3 text-sm border border-border/60">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">{item.item_nome}</span>
+                    <span className="font-medium text-foreground">{item.item_nome}</span>
                     <Badge 
                       variant={item.tipo === 'entrada' ? 'default' : 'destructive'}
                       className="text-xs px-2 py-0"
@@ -99,10 +99,10 @@ export function BebidasHistoryDialog({ historico, loading = false, selectedUnida
                       {item.tipo === 'entrada' ? 'Entrada' : 'Saída'}
                     </Badge>
                   </div>
-                  <span className="text-xs text-gray-500">{formatDate(item.data_operacao)}</span>
+                  <span className="text-xs text-muted-foreground">{formatDate(item.data_operacao)}</span>
                 </div>
                 
-                <div className="flex items-center gap-4 text-xs text-gray-600">
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span>Quantidade: {item.quantidade} {getUnidadeDisplay(item)}</span>
                   <span>Categoria: {item.categoria}</span>
                   {item.unidade_item && (
@@ -111,7 +111,7 @@ export function BebidasHistoryDialog({ historico, loading = false, selectedUnida
                 </div>
                 
                 {item.observacoes && (
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-muted-foreground">
                     {item.observacoes}
                   </div>
                 )}

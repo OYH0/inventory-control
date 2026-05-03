@@ -28,9 +28,9 @@ export function Relatorios() {
 
   // Dados para gráficos
   const distribuicaoEstoque = [
-    { name: 'Câmara Fria', value: camaraFriaItems.length, color: '#3b82f6' },
-    { name: 'Estoque Seco', value: estoqueSecoItems.length, color: '#f59e0b' },
-    { name: 'Descartáveis', value: descartaveisItems.length, color: '#ef4444' },
+    { name: 'Câmara Fria', value: camaraFriaItems.length, color: 'hsl(217 75% 55%)' },
+    { name: 'Estoque Seco', value: estoqueSecoItems.length, color: 'hsl(38 92% 55%)' },
+    { name: 'Descartáveis', value: descartaveisItems.length, color: 'hsl(158 70% 38%)' },
   ];
 
   const categoriasData = [
@@ -84,13 +84,15 @@ export function Relatorios() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-enter">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+          <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-foreground">
             Relatórios
           </h1>
-          <p className="text-muted-foreground mt-1">Análises detalhadas do seu estoque</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Análises detalhadas do seu estoque
+          </p>
         </div>
         
         <div className="flex gap-2">

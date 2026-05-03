@@ -100,28 +100,31 @@ export function ExpiryAlertCard({
     setActionTaken('');
   };
 
-  const borderColor = alert.priority === 'critical' 
-    ? 'border-red-500' 
-    : alert.priority === 'high'
-    ? 'border-orange-500'
-    : 'border-yellow-500';
+  const priorityClass =
+    alert.priority === 'critical'
+      ? 'border-l-destructive'
+      : alert.priority === 'high'
+      ? 'border-l-warning'
+      : 'border-l-warning/60';
 
   return (
     <>
-      <Card className={`${borderColor} border-l-4`}>
-        <CardContent className={compact ? 'p-4' : 'p-6'}>
+      <Card className={`card-elevated border-l-4 ${priorityClass}`}>
+        <CardContent className={compact ? 'p-4' : 'p-5'}>
           <div className="flex items-start justify-between gap-4">
             {/* Main Content */}
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-3 min-w-0">
               {/* Header */}
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-semibold text-lg">{alert.item_name}</h3>
+                <h3 className="font-display font-semibold text-base text-foreground truncate">
+                  {alert.item_name}
+                </h3>
                 <Badge variant={getPriorityColor(alert.priority)}>
                   {getAlertTypeLabel(alert.alert_type)}
                 </Badge>
                 {alert.status === 'read' && (
-                  <Badge variant="outline" className="text-xs">
-                    <Eye className="w-3 h-3 mr-1" />
+                  <Badge variant="outline" className="text-xs gap-1">
+                    <Eye className="w-3 h-3" />
                     Lido
                   </Badge>
                 )}
@@ -130,15 +133,15 @@ export function ExpiryAlertCard({
               {/* Details Grid */}
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <Clock className="w-4 h-4" />
-                  <span className={alert.days_until_expiry <= 0 ? 'text-red-600 font-semibold' : ''}>
+                  <Clock className="w-4 h-4 shrink-0" />
+                  <span className={alert.days_until_expiry <= 0 ? 'text-destructive font-semibold' : ''}>
                     {getDaysText(alert.days_until_expiry)}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  <span>
+                  <Calendar className="w-4 h-4 shrink-0" />
+                  <span className="tabular-nums">
                     {format(new Date(alert.expiry_date), 'dd/MM/yyyy', { locale: ptBR })}
                   </span>
                 </div>
@@ -146,14 +149,14 @@ export function ExpiryAlertCard({
                 {!compact && (
                   <>
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Package className="w-4 h-4" />
-                      <span>{alert.quantity} unidades</span>
+                      <Package className="w-4 h-4 shrink-0" />
+                      <span className="tabular-nums">{alert.quantity} unidades</span>
                     </div>
 
                     {alert.estimated_value && (
                       <div className="flex items-center gap-2 text-muted-foreground">
-                        <DollarSign className="w-4 h-4" />
-                        <span className="font-medium text-red-600">
+                        <DollarSign className="w-4 h-4 shrink-0" />
+                        <span className="font-medium text-destructive tabular-nums">
                           {formatCurrency(alert.estimated_value)}
                         </span>
                       </div>

@@ -36,11 +36,11 @@ const actionTypeLabels: Record<string, string> = {
 };
 
 const actionTypeColors: Record<string, string> = {
-  'INSERT': 'bg-green-500',
-  'UPDATE': 'bg-blue-500',
-  'DELETE': 'bg-red-500',
-  'LOGIN': 'bg-purple-500',
-  'LOGOUT': 'bg-gray-500',
+  'INSERT': 'bg-success text-success-foreground',
+  'UPDATE': 'bg-info text-info-foreground',
+  'DELETE': 'bg-destructive text-destructive-foreground',
+  'LOGIN': 'bg-primary text-primary-foreground',
+  'LOGOUT': 'bg-muted text-foreground',
 };
 
 export default function AuditLogs() {
@@ -167,12 +167,13 @@ export default function AuditLogs() {
       </div>
 
       {/* Info */}
-      <Card className="bg-blue-50/50 border-blue-200">
-        <CardContent className="pt-6">
+      <Card className="card-elevated border-info/30 bg-info/5">
+        <CardContent className="p-4">
           <div className="flex items-start gap-2 text-sm">
-            <AlertCircle className="w-4 h-4 text-blue-500 mt-0.5" />
-            <p className="text-blue-700">
-              Exibindo os últimos 500 registros de auditoria. Total filtrado: <strong>{filteredLogs.length}</strong>
+            <AlertCircle className="w-4 h-4 text-info mt-0.5 shrink-0" />
+            <p className="text-foreground/80">
+              Exibindo os últimos 500 registros de auditoria. Total filtrado:{' '}
+              <strong className="tabular-nums">{filteredLogs.length}</strong>
             </p>
           </div>
         </CardContent>
@@ -186,16 +187,18 @@ export default function AuditLogs() {
       ) : (
         <div className="space-y-2">
           {filteredLogs.map(log => (
-            <Card key={log.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
+            <Card key={log.id} className="card-elevated">
+              <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className={actionTypeColors[log.action_type] || 'bg-gray-500'}>
+                  <div className="flex-1 space-y-2 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge className={actionTypeColors[log.action_type] || 'bg-muted text-foreground'}>
                         {actionTypeLabels[log.action_type] || log.action_type}
                       </Badge>
-                      <Badge variant="outline">{log.table_name}</Badge>
-                      <span className="text-xs text-muted-foreground">
+                      <Badge variant="outline" className="font-mono text-[11px]">
+                        {log.table_name}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground tabular-nums">
                         {format(new Date(log.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                       </span>
                     </div>

@@ -115,7 +115,7 @@ export function CamaraFriaTransferDialog({
               {availableItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-3 p-2 border rounded hover:bg-gray-50"
+                  className="flex items-center gap-3 p-2 border rounded hover:bg-muted/40"
                 >
                   <Checkbox
                     checked={selectedItems.has(item.id)}
@@ -133,11 +133,11 @@ export function CamaraFriaTransferDialog({
                         </Badge>
                       )}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       {item.quantidade} {item.unidade}
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-gray-400" />
+                  <ArrowRight className="w-4 h-4 text-muted-foreground" />
                   <Badge className="text-xs bg-blue-100 text-blue-800">
                     {getUnidadeLabel(targetUnidade)}
                   </Badge>

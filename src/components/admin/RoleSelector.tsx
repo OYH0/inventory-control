@@ -43,7 +43,7 @@ const ROLES = [
     label: 'Visualizador', 
     icon: Eye,
     description: 'Apenas visualização',
-    color: 'text-gray-600'
+    color: 'text-muted-foreground'
   }
 ];
 

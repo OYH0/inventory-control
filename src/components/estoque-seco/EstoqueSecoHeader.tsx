@@ -60,8 +60,8 @@ export function EstoqueSecoHeader({
           <Package className="w-4 h-4 md:w-5 md:h-5 text-white" />
         </div>
         <div>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900">Estoque Seco</h2>
-          <p className="text-sm md:text-base text-gray-600">Produtos secos e não perecíveis</p>
+          <h2 className="text-xl md:text-2xl font-bold text-foreground">Estoque Seco</h2>
+          <p className="text-sm md:text-base text-muted-foreground">Produtos secos e não perecíveis</p>
         </div>
       </div>
       
@@ -80,7 +80,7 @@ export function EstoqueSecoHeader({
         <Button 
           variant="outline" 
           size={isMobile ? "sm" : "default"}
-          className="border-gray-300"
+          
           onClick={handlePrintPDF}
         >
           <FileText className="w-4 h-4 mr-1 md:mr-2" />
@@ -92,7 +92,7 @@ export function EstoqueSecoHeader({
             <Button 
               variant="outline" 
               size={isMobile ? "sm" : "default"}
-              className="border-gray-300"
+              
             >
               <History className="w-4 h-4 mr-1 md:mr-2" />
               <span className={isMobile ? "text-xs" : "text-sm"}>Histórico</span>

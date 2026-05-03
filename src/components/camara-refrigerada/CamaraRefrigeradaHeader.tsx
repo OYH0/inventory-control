@@ -34,7 +34,7 @@ export function CamaraRefrigeradaHeader({
             <Button 
               variant="outline" 
               size={isMobile ? "sm" : "default"}
-              className="border-gray-300"
+              
             >
               <History className="w-4 h-4 mr-1 md:mr-2" />
               <span className={isMobile ? "text-xs" : "text-sm"}>Histórico</span>

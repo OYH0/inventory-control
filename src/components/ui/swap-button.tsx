@@ -100,9 +100,9 @@ export function SwapButton({
       <Button
         ref={buttonRef}
         className={cn(
-          "relative overflow-hidden bg-green-500 hover:bg-green-600 text-white font-medium",
+          "relative overflow-hidden bg-success hover:bg-success/90 text-success-foreground font-medium",
           "transition-all duration-200 select-none cursor-grab active:cursor-grabbing",
-          isCompleted && "bg-green-600 cursor-default",
+          isCompleted && "bg-success cursor-default",
           disabled && "opacity-50 cursor-not-allowed",
           className
         )}
@@ -116,12 +116,12 @@ export function SwapButton({
         onTouchEnd={isSwipeActive ? handleTouchEnd : undefined}
       >
         {/* Background track */}
-        <div className="absolute inset-0 bg-green-400 opacity-50" />
-        
+        <div className="absolute inset-0 bg-success/40" />
+
         {/* Sliding thumb */}
         <div
           className={cn(
-            "absolute left-1 top-1 bottom-1 w-12 bg-white rounded-sm shadow-md",
+            "absolute left-1 top-1 bottom-1 w-12 bg-card rounded-sm shadow-md",
             "flex items-center justify-center transition-transform duration-200",
             "z-10"
           )}
@@ -131,31 +131,31 @@ export function SwapButton({
           }}
         >
           {isCompleted ? (
-            <Check className="w-4 h-4 text-green-600" />
+            <Check className="w-4 h-4 text-success" />
           ) : (
-            <ArrowRight className="w-4 h-4 text-green-600" />
+            <ArrowRight className="w-4 h-4 text-success" />
           )}
         </div>
-        
+
         {/* Button text */}
         <div className="relative z-0 flex items-center justify-center w-full">
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium text-success-foreground">
             {isCompleted ? "Concluído!" : children}
           </span>
         </div>
-        
+
         {/* Progress indicator */}
         {isSwipeActive && (
-          <div 
-            className="absolute bottom-0 left-0 h-1 bg-green-300 transition-all duration-100"
+          <div
+            className="absolute bottom-0 left-0 h-1 bg-success transition-all duration-100"
             style={{ width: `${(swipeDistance / swipeThreshold) * 100}%` }}
           />
         )}
       </Button>
-      
+
       {/* Instruction text */}
       {!isCompleted && (
-        <p className="text-xs text-gray-500 mt-1 text-center">
+        <p className="text-xs text-muted-foreground mt-1 text-center">
           Deslize para confirmar →
         </p>
       )}
