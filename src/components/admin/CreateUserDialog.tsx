@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, UserPlus, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, UserPlus, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PasswordGenerator } from './PasswordGenerator';
-import { RoleSelector, OrganizationRole, getPermissionsByRole } from './RoleSelector';
+import { RoleSelector, OrganizationRole } from './RoleSelector';
+
 
 interface CreateUserDialogProps {
   onSuccess: () => void;
@@ -52,67 +53,33 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
     setLoading(true);
 
     try {
-      // Verificar se email já existe
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', formData.email)
-        .single();
-
-      if (existingUser) {
-        toast.error('Email já cadastrado no sistema');
+      // Obter token JWT do usuário atual
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error('Sessão expirada. Faça login novamente.');
         setLoading(false);
         return;
       }
 
-      // IMPORTANTE: Esta funcionalidade requer Service Role Key
-      // Em produção, use Supabase Edge Functions
-      toast.error(
-        'Criar usuário requer Service Role Key no backend. ' +
-        'Configure Supabase Edge Functions para esta funcionalidade.',
-        { duration: 5000 }
-      );
-      
-      // Código comentado - requer service role key ou edge function
-      /*
-      const { data: newUser, error: authError } = await supabase.auth.admin.createUser({
-        email: formData.email,
-        password: formData.password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: formData.fullName
-        }
+      // Chamar Edge Function create-user
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: {
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          userType: formData.userType,
+          unidadeResponsavel: formData.unidadeResponsavel,
+          organizationId: formData.organizationId || undefined,
+          organizationRole: formData.organizationRole || undefined,
+        },
       });
 
-      if (authError) throw authError;
+      if (error) {
+        throw new Error(error.message || 'Erro ao criar usuário');
+      }
 
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: newUser.user.id,
-          email: formData.email,
-          full_name: formData.fullName,
-          user_type: formData.userType,
-          unidade_responsavel: formData.unidadeResponsavel === 'todas' ? null : formData.unidadeResponsavel
-        });
-
-      if (profileError) throw profileError;
-
-      if (formData.organizationId) {
-        const permissions = getPermissionsByRole(formData.organizationRole);
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        await supabase
-          .from('organization_members')
-          .insert({
-            organization_id: formData.organizationId,
-            user_id: newUser.user.id,
-            role: formData.organizationRole,
-            permissions,
-            is_active: true,
-            invited_by: user?.id,
-            joined_at: new Date().toISOString()
-          });
+      if (data?.error) {
+        throw new Error(data.error);
       }
 
       toast.success(`Usuário "${formData.fullName}" criado com sucesso!`);
@@ -128,12 +95,10 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
         sendWelcomeEmail: true
       });
       onSuccess();
-      */
-
-      setLoading(false);
     } catch (error) {
       console.error('Erro ao criar usuário:', error);
       toast.error(error instanceof Error ? error.message : 'Erro ao criar usuário');
+    } finally {
       setLoading(false);
     }
   };
@@ -156,15 +121,6 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
             Crie um novo usuário no sistema com credenciais temporárias.
           </DialogDescription>
         </DialogHeader>
-
-        {/* Alert sobre Service Role Key */}
-        <Alert className="border-orange-200 bg-orange-50">
-          <AlertCircle className="h-4 w-4 text-orange-600" />
-          <AlertDescription className="text-sm text-orange-800">
-            <strong>Funcionalidade Requer Backend:</strong> Criar usuários requer Service Role Key que não deve ser exposta no frontend.
-            Configure uma <strong>Supabase Edge Function</strong> para habilitar esta funcionalidade com segurança.
-          </AlertDescription>
-        </Alert>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
